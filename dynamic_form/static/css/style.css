@@ -1,0 +1,46 @@
+:root {
+  --tg-theme-bg-color: #ffffff;
+  --tg-theme-text-color: #000000;
+  --tg-theme-hint-color: #a8a8a8;
+  --tg-theme-link-color: #1b95e0;
+  --tg-theme-button-color: #0088cc;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #f5f5f5;
+  --tg-theme-header-bg-color: #f7f7f7;
+  --tg-theme-accent-text-color: #ff4b55;
+  --tg-theme-section-bg-color: #ffffff;
+  --tg-theme-section-header-text-color: #000000;
+  --tg-theme-subtitle-text-color: #7a7a7a;
+  --tg-theme-destructive-text-color: #ff3b30;
+}
+body {
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  font-family: Inter;
+}
+
+a {
+  color: var(--tg-theme-link-color);
+}
+
+button {
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+}
+
+.header {
+  background-color: var(--tg-theme-header-bg-color);
+}
+
+.section {
+  background-color: var(--tg-theme-section-bg-color);
+  color: var(--tg-theme-section-header-text-color);
+}
+
+.subtitle {
+  color: var(--tg-theme-subtitle-text-color);
+}
+
+.destructive {
+  color: var(--tg-theme-destructive-text-color);
+}
