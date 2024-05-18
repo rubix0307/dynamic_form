@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block body %}
-    <h1>hello world</h1>
-    <a href="/">1223</a>
+
+    <form action="{% url 'index' %}" method="post" class="dynamic-form">
+        {% csrf_token %}
+        {% include 'main/form_blocks/entity_type.html' %}
+        <button type="submit">Отправить</button>
+    <form>
+    
 {% endblock %}

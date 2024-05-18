@@ -1,0 +1,19 @@
+{% load static %}
+<div class="form-group">
+    <div class="question">Какими видами деятельности Вы планируете заниматься?</div>
+    
+    <div class="search" data-HideCheckingActivities="1">
+        <input type="text" name="search_activity" id="id_search_activity" placeholder="Поиск вида деятельности">
+        <div class="remove" onclick="clearInput(this)"><img src="{% static 'images/clear.svg' %}" alt="My Icon" class="svg-icon"></div>
+    </div>
+    {% include 'main/form_blocks/inc/activities_list.html' %}
+    
+    <div id="selected-activities"></div>
+    <div id="checkActivitiesBtn" style="display: none;" onclick="highlightEmptyActivityPlaces()">подтвердить виды деятельности</div>
+    <script src="{% static 'js/removeActivity.js' %}"></script>
+    <script src="{% static 'js/searchActivity.js' %}"></script>
+    <script src="{% static 'js/checkActivitiesBtn.js' %}"></script>
+
+    <script>observeActivities()</script>
+
+</div>

@@ -1,0 +1,22 @@
+<div class="activity-place" data-url="/get_activity_detail?activity={{ activity.id }}" data-NotActiveCheckingActivities="1">
+    <div class="header">
+        <input type="hidden" name="activities" value="{{ activity.id }}">
+        <div class="row">
+            <div class="caption">{{ activity.name }}</div>
+            <button type="button" onclick="removeActivity(this)" data-HideCheckingActivities="1">Удалить</button>
+        </div>
+    </div>
+    <div class="body">
+        <div class="left"></div>
+        <div class="right">
+            <div class="caption">Специализации:</div>
+            {% for specialization in activity.specializations %}
+                <div class="specialization_place">
+                    <input type="checkbox" id="specialization_{{ activity.id }}" name="specialization_{{ activity.id }}" value="{{ specialization.name }}" data-NotActiveCheckingActivities="1">
+                    <label for="specialization_{{ activity.id }}">{{ specialization.name }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>

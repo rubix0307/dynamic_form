@@ -13,10 +13,13 @@
   --tg-theme-subtitle-text-color: #7a7a7a;
   --tg-theme-destructive-text-color: #ff3b30;
 }
+* {
+  font-family: Inter;
+}
 body {
   background-color: var(--tg-theme-bg-color);
   color: var(--tg-theme-text-color);
-  font-family: Inter;
+  margin: 0;
 }
 
 a {
@@ -26,10 +29,6 @@ a {
 button {
   background-color: var(--tg-theme-button-color);
   color: var(--tg-theme-button-text-color);
-}
-
-.header {
-  background-color: var(--tg-theme-header-bg-color);
 }
 
 .section {

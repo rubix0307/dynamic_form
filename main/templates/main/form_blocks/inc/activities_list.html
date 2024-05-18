@@ -1,0 +1,12 @@
+<div id="activity-suggestions" data-HideCheckingActivities="1">
+    <ul>
+        {% for activity in activities %}
+            <li 
+               hx-get="/get_activity_detail?activity={{ activity.0 }}"
+               hx-target="#selected-activities"
+               hx-swap="afterbegin"
+               hx-on="htmx:afterRequest: this.style.display='none';"
+            >{{ activity.1 }}</li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,22 @@
+<div class="form-group">
+    <div class="entityType">
+            <div class="question">Варианты юр лица.</div>
+            <div class="option">
+                <input type="radio" name="entityType" value="freezone" hx-post="/get_form/" hx-trigger="change" hx-target="#main-form-data" hx-swap="innerHTML" id="id_entityType_0" required="" aria-invalid="true" class="">
+                Фризона
+            </div>
+        
+            <div class="option">
+                <input type="radio" name="entityType" value="mainland" hx-post="/get_form/" hx-trigger="change" hx-target="#main-form-data" hx-swap="innerHTML" id="id_entityType_1" required="" aria-invalid="true">
+                Мэйнленд
+            </div>
+        
+            <div class="option">
+                <input type="radio" name="entityType" value="offshore" hx-post="/get_form/" hx-trigger="change" hx-target="#main-form-data" hx-swap="innerHTML" id="id_entityType_2" required="" aria-invalid="true">
+                Оффшор
+            </div>
+        
+    </div>
+
+    <div id="main-form-data"></div>
+</div>
