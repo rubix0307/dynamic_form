@@ -8,10 +8,12 @@ function clearInput(element) {
         }
     }
 }
+function listenSearchActivity() {
+    document.getElementById('id_search_activity').addEventListener('input', function() {
+        filterList(this.value.toLowerCase());
+    });
+}
 
-document.getElementById('id_search_activity').addEventListener('input', function() {
-    filterList(this.value.toLowerCase());
-});
 
 function filterList(filter) {
     var ul = document.querySelector('#activity-suggestions ul');

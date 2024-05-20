@@ -9,11 +9,14 @@
     {% include 'main/form_blocks/inc/activities_list.html' %}
     
     <div id="selected-activities"></div>
-    <div id="checkActivitiesBtn" style="display: none;" onclick="highlightEmptyActivityPlaces()">подтвердить виды деятельности</div>
-    <script src="{% static 'js/removeActivity.js' %}"></script>
-    <script src="{% static 'js/searchActivity.js' %}"></script>
-    <script src="{% static 'js/checkActivitiesBtn.js' %}"></script>
-
-    <script>observeActivities()</script>
+    <div id="checkActivitiesBtn" style="display: none;" onclick="highlightEmptyActivityPlaces()" class="next">подтвердить виды деятельности</div>
+    
+    
+    <script>
+        listenSearchActivity()
+        observeActivities()
+    </script>
+    
+    
 
 </div>

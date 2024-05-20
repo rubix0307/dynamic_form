@@ -36,10 +36,23 @@ def index(request: WSGIRequest) -> HttpResponse:
 
 @require_POST
 def get_form(request: WSGIRequest) -> HttpResponse:
-    context = {
-        'activities': [(activity, activities[activity]['name']) for activity in activities.keys()],
-    }
-    return render(request, 'main/freezone.html', context)
+    context = {}
+    match request.GET.get('part'):
+        case 'activities':
+            template_name = 'main/freezone/activities.html'
+            context['activities'] = [(activity, activities[activity]['name']) for activity in activities.keys()]
+
+        case 'shareholder_question':
+            template_name = 'main/freezone/shareholder_home_company_questions.html'
+
+        case 'registration_preferences':
+            template_name = 'main/freezone/registration_preferences.html'
+
+        case _:
+            return HttpResponse('soon')
+
+
+    return render(request, template_name, context)
 
 
 

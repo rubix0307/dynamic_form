@@ -5,7 +5,12 @@
     <form action="{% url 'index' %}" method="post" class="dynamic-form">
         {% csrf_token %}
         {% include 'main/form_blocks/entity_type.html' %}
-        <button type="submit">Отправить</button>
+    
+        <div id="main-form-data" class="form-group"></div>
+        <div id="shareholder_question" class="form-group"></div>
+        <div id="registration_preferences" class="form-group"></div>
+    
+{#        <button type="submit">Отправить</button>#}
     <form>
     
 {% endblock %}

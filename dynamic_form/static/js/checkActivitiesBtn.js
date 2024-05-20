@@ -14,7 +14,7 @@ function observeActivities() {
         if (mutation.type === 'childList') {
           // Проверить, пустой ли элемент
           if (targetNode.children.length > 0) {
-            checkActivitiesBtn.style.display = 'block';
+            checkActivitiesBtn.style.display = 'flex';
 
           } else {
             checkActivitiesBtn.style.display = 'none';
@@ -31,15 +31,14 @@ function observeActivities() {
 
     // Проверить начальное состояние элемента (на случай, если он уже не пустой)
     if (targetNode.children.length > 0) {
-      checkActivitiesBtn.style.display = 'block';
+      checkActivitiesBtn.style.display = 'flex';
     } else {
       checkActivitiesBtn.style.display = 'none';
     }
 }
-observeActivities()
 function highlightEmptyActivityPlaces() {
     // Найти все элементы с классом activity-place внутри selected-activities
-    const activityPlaces = document.querySelectorAll('#selected-activities .activity-place');
+    const activityPlaces = document.querySelectorAll('#selected-activities .secondary-place');
 
     // Итерироваться по найденным activity-place
     let allGood = true
@@ -52,7 +51,10 @@ function highlightEmptyActivityPlaces() {
 
         // Если нет ни одного отмеченного чекбокса, выделить activity-place красным
         if (!hasCheckedCheckbox) {
-            activityPlace.style.border = '2px solid var(--tg-theme-accent-text-color)';
+            activityPlace.classList.add('empty-input');
+            setTimeout(function() {
+                activityPlace.classList.remove('empty-input');
+            }, 1000);
             allGood = false
         } else {
             // Убрать красное выделение, если есть отмеченные чекбоксы
@@ -69,5 +71,25 @@ function highlightEmptyActivityPlaces() {
         elementsToNotActive.forEach(element => {
             element.style.pointerEvents = 'none';
         });
+
+
+        activityPlaces.forEach(activityPlace => {
+            const checkboxes = activityPlace.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.parentElement.remove();
+                }
+            })
+        })
+
+        const div = document.createElement('div');
+        div.setAttribute('hx-post', 'get_form/?part=shareholder_question');
+        div.setAttribute('hx-trigger', 'load');
+        div.setAttribute('hx-target', '#shareholder_question');
+        div.setAttribute('hx-swap', 'innerHTML');
+
+        document.body.appendChild(div);
+        document.getElementById('checkActivitiesBtn').style.display = 'none';
+        htmx.process(div);
     }
 }
