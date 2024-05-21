@@ -1,0 +1,40 @@
+{% load static %}
+<div class="secondary-place" style="margin: 5px 0 15px 25px;">
+    <div class="header">
+        <div class="row">
+            <div class="caption">Выберите эмират:</div>
+        </div>
+    </div>
+    <div class="body">
+        <div class="left"></div>
+        <div class="right">
+            <ul id="emirates-list">
+                <li
+                   hx-get="/get_free_economic_zones_by_emirate_name/?emirate_name=DUBAI"
+                   hx-target="#selected-emirates"
+                   hx-swap="beforeend"
+                   hx-on="htmx:afterRequest: this.style.display='none';"
+                >Dubai</li>
+                <li
+                   hx-get="/get_free_economic_zones_by_emirate_name/?emirate_name=SHARJAH"
+                   hx-target="#selected-emirates"
+                   hx-swap="beforeend"
+                   hx-on="htmx:afterRequest: this.style.display='none';"
+                >Sharjah</li>
+
+                <li>- Abu Dhabi</li>
+                <li>- Ajman</li>
+                <li>- Ras Al-Khaimah</li>
+                <li>- Fujairah</li>
+                <li>- Umm Al Quwain</li>
+            </ul>
+            <div id="selected-emirates"></div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+

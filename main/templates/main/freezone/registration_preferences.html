@@ -1,4 +1,19 @@
-<div class="form-group">
+<div class="form-group" data-block4-check-radio="1">
     <div class="question">Есть ли у Вас предпочтения по регистрации компании в каком-то конкретном эмирате или СЭЗ ОАЭ?</div>
-    
+
+    <div class="option">
+        <input type="radio" name="shareholder_question" value="1" required="" aria-invalid="true"
+        hx-post="get_form/?part=registration_preferences_detail"
+        hx-trigger="click"
+        hx-target="#RegistrationPreferencesSelected"
+        hx-swap="beforeend"
+        >
+        Да
+    </div>
+    <div id="RegistrationPreferencesSelected"></div>
+    <div class="option">
+        <input type="radio" name="shareholder_question" value="0" required="" aria-invalid="true" onclick="clearRegistrationPreferencesDetail()">
+        Нет
+    </div>
 </div>
+<div class="next" onclick="checkInputsBlock4(this)">Далее</div>

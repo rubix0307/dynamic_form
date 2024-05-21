@@ -1,0 +1,25 @@
+<div class="secondary-place" data-url="/get_free_economic_zones_by_emirate_name/?emirate_name={{ emirate_name|upper }}">
+    <div class="header">
+        <input type="hidden" name="registration_preferences__{{ emirate_name|upper }}" value="{{ emirate_name|upper }}">
+        <div class="row">
+            <div class="caption">{{ emirate_name|upper }}</div>
+            <button type="button" onclick="removeEmirate(this)">Удалить</button>
+        </div>
+    </div>
+    <div class="body">
+        <div class="left"></div>
+        <div class="right">
+            <div class="caption">Выберите СЭЗ: (опционально)</div>
+            <div class="fez-list">
+                {% for fez in economic_zones %}
+                    <div class="specialization_place">
+                        <input type="checkbox" name="registration_preferences__{{ emirate_name|upper }}__{{ fez.name|upper }}" value="{{ fez.name }}">
+                        <label>{{ fez.name }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+    </div>
+</div>

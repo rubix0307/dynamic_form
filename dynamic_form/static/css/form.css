@@ -149,6 +149,23 @@
                 padding: 3px 0;
             }
         }
+    #emirates-list {
+        padding: 0;
+        margin: 0;
+        & li {
+            list-style: none;
+            cursor: pointer;
+            margin-bottom: 5px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    .fez-list {
+        max-height: 30svh;
+        overflow-y: scroll;
+    }
 }
 
 .form-group {
@@ -206,7 +223,7 @@
 
 
 .next {
-    height: 50px;
+    min-height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
