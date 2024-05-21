@@ -60,7 +60,7 @@ function checkInputsBlock4(btn) {
         const div = document.createElement('div');
         div.setAttribute('hx-post', 'get_form/?part=outsource');
         div.setAttribute('hx-trigger', 'load');
-        div.setAttribute('hx-target', '#registration_preferences');
+        div.setAttribute('hx-target', '#outsource');
         div.setAttribute('hx-swap', 'innerHTML');
 
         document.body.appendChild(div);
