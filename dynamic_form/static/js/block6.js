@@ -17,6 +17,11 @@ function checkInputsBlock6(btn) {
         is_good = false
     }
 
+    if (visaQuotaNumberToMake && visaQuotaNumber && visaQuotaNumberToMake.value > visaQuotaNumber.value) {
+        accentElement(visaQuotaNumberToMake.parentElement, 1000)
+        is_good = false
+    }
+
 
     if (is_good) {
         const div = document.createElement('div');
