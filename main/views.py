@@ -51,6 +51,9 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'registration_preferences_detail':
             template_name = 'main/form_blocks/inc/registration_preferences_detail.html'
 
+        case 'outsource':
+            template_name = 'main/freezone/block_5/index.html'
+
         case _:
             return HttpResponse('soon')
 

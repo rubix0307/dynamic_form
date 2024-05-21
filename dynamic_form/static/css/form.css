@@ -32,6 +32,15 @@
         font-size: 18px;
         border-bottom: 1px solid var(--tg-theme-subtitle-text-color);
     }
+    .place {
+         display: flex;
+        flex-direction: column;
+        background-color: var(--tg-theme-secondary-bg-color);
+        padding: 10px 5px;
+        margin-bottom: 5px;
+        border: 2px solid transparent;
+        border-radius: 5px;
+    }
     .secondary-place {
         display: flex;
         flex-direction: column;
