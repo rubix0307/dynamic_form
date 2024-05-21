@@ -54,6 +54,12 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'outsource':
             template_name = 'main/freezone/block_5/index.html'
 
+        case 'visa':
+            template_name = 'main/freezone/block_6/index.html'
+
+        case 'visa_detail':
+            template_name = 'main/freezone/block_6/visa_detail.html'
+
         case _:
             return HttpResponse('soon')
 
