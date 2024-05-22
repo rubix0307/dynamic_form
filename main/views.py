@@ -60,6 +60,10 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'visa_detail':
             template_name = 'main/freezone/block_6/visa_detail.html'
 
+        case 'shareholders':
+            template_name = 'main/freezone/block_7/index.html'
+
+
         case _:
             return HttpResponse('soon')
 

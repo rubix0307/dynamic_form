@@ -43,3 +43,6 @@ button {
 .destructive {
   color: var(--tg-theme-destructive-text-color);
 }
+input {
+  background-color: transparent;
+}

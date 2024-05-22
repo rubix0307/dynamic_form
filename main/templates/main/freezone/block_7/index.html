@@ -1,0 +1,27 @@
+<div class="form-group" >
+    <div class="question">Планируемое количество акционеров-физлиц:</div>
+    <input type="number" min="0" placeholder="Количество" id="private-shareholder-count" data-block7-input-value-required="1">
+</div>
+
+
+<div class="form-group">
+    <div class="question">Планируемое количество акционеров-юрлиц:</div>
+    <input type="number" min="0" id="shareholder-legal-count" placeholder="Введите значение" data-block7-input-value-required="1">
+    <div id="shareholder-legal-detail" class="secondary-place" style="display: none;">
+        <div class="question">Укажите, юрисдикцию регистрации каждого акционера-юрлица:</div>
+    </div>
+
+</div>
+
+<div id="shareholders-nationality-list" class="form-group" style="display: none;">
+    <div class="question">Укажите, гражданство каждого акционера:</div>
+</div>
+
+
+
+<div class="next" onclick="checkInputsBlock7(this)">Дальше</div>
+
+<script>
+    listenShareholderLegalCount()
+    listenAllShareholdersCount()
+</script>
