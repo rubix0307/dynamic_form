@@ -61,6 +61,9 @@ function checkInputsBlock3(btn) {
         elementsToNotActive.forEach(element => {
             element.style.pointerEvents = 'none';
         });
+
+
+        formScrollToElement('#registration_preferences')
     }
 
     return is_good;

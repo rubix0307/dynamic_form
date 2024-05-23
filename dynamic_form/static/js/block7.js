@@ -150,6 +150,8 @@ function checkInputsBlock7(btn) {
         document.body.appendChild(div);
         btn.style.display = 'none';
         htmx.process(div);
+
+        formScrollToElement('#office_and_bank')
     }
 
 

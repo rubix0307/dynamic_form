@@ -255,6 +255,9 @@
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
+
+    position: sticky;
+    bottom: 0;
 }
 
 .hidden {

@@ -75,23 +75,17 @@ function setupDynamicInput(inputElementId, hxPost, hxTarget, hxTrigger) {
     htmx.process(inputElement);
 
 }
+function formScrollToElement(elementSelector) {
+    const form = document.querySelector('.dynamic-form');
+    const spaceElement= form.querySelector(elementSelector);
+    if (spaceElement) {
+        setTimeout(() => {
+            spaceElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 300);
 
-(function() {
-    var originalXHR = window.XMLHttpRequest;
-    function customXHR() {
-        var xhr = new originalXHR();
-        var originalOpen = xhr.open;
-
-        xhr.open = function(method, url) {
-            if (url.endsWith('{set_new_count}')) {
-                let inputElement = document.getElementById('shareholder-legal-count')
-                url = inputElement.attributes['hx-post'].value.replace('{set_new_count}', `count=${inputElement.value}`);
-            }
-            originalOpen.apply(this, arguments);
-        };
-
-        return xhr;
     }
+}
 
-    window.XMLHttpRequest = customXHR;
-})();

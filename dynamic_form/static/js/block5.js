@@ -20,5 +20,7 @@ function checkInputsBlock5(btn) {
         document.body.appendChild(div);
         btn.style.display = 'none';
         htmx.process(div);
+
+        formScrollToElement('#visa')
     }
 }

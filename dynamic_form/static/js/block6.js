@@ -33,5 +33,7 @@ function checkInputsBlock6(btn) {
         document.body.appendChild(div);
         btn.style.display = 'none';
         htmx.process(div);
+
+        formScrollToElement('#shareholders')
     }
 }

@@ -66,6 +66,8 @@ function checkInputsBlock4(btn) {
         document.body.appendChild(div);
         btn.style.display = 'none';
         htmx.process(div);
+
+        formScrollToElement('#outsource')
     }
 
 }
