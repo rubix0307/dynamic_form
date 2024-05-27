@@ -256,8 +256,8 @@
     text-transform: uppercase;
     cursor: pointer;
 
-    position: sticky;
-    bottom: 0;
+    /*position: sticky;*/
+    /*bottom: 0;*/
 }
 
 .hidden {

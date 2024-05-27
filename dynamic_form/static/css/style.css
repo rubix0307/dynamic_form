@@ -44,5 +44,6 @@ button {
   color: var(--tg-theme-destructive-text-color);
 }
 input {
+  color: var(--tg-theme-text-color);
   background-color: transparent;
 }
