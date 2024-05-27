@@ -15,6 +15,7 @@ function listenOffice() {
             inputElement.placeholder = 'м2';
             inputElement.id = 'real_office_input';
             inputElement.name = 'real_office_area';
+            inputElement.required = true;
             inputElement.setAttribute('data-office-area-check', '1');
 
             // Добавляем input элемент в real_office_input_area
@@ -57,6 +58,18 @@ function checkInputsBlock8(btn) {
     }
 
 
+    let needBankAccount = document.querySelector('input[name="bank_account"][value="1"]');
+    if (needBankAccount.checked) {
+        let anyElementsForBackRequired = document.querySelectorAll(`[data-need-office-for-bank="1"]`);
+        let isChecked = Array.from(anyElementsForBackRequired).some(element => element.checked);
+
+        if (!isChecked) {
+            anyElementsForBackRequired.forEach(element => {
+                accentElement(element.parentElement, 1000)
+            });
+            is_good = false;
+        }
+    }
 
     if (is_good) {
         const div = document.createElement('div');
