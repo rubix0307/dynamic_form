@@ -6,7 +6,7 @@
         <input type="text" name="search_activity" id="id_search_activity" placeholder="Поиск вида деятельности">
         <div class="remove" onclick="clearInput(this, '#activity-suggestions ul')"><img src="{% static 'images/clear.svg' %}" alt="My Icon" class="svg-icon"></div>
     </div>
-    {% include 'main/form_blocks/inc/activities_list.html' %}
+    {% include 'main/freezone/block_2/activities_list.html' %}
     
     <div id="selected-activities"></div>
     <div id="checkActivitiesBtn" style="display: none;" onclick="highlightEmptyActivityPlaces()" class="next">подтвердить виды деятельности</div>
@@ -16,7 +16,6 @@
         listenSearchActivity()
         observeActivities()
     </script>
-    
-    
-
 </div>
+<div id="shareholder_question" class="form-group"></div>
+

@@ -39,17 +39,17 @@ def get_form(request: WSGIRequest) -> HttpResponse:
     context = {}
     match request.GET.get('part'):
         case 'activities':
-            template_name = 'main/freezone/activities.html'
+            template_name = 'main/freezone/block_2/activities.html'
             context['activities'] = [(activity, activities[activity]['name']) for activity in activities.keys()]
 
         case 'shareholder_question':
-            template_name = 'main/freezone/shareholder_home_company_questions.html'
+            template_name = 'main/freezone/block_3/shareholder_home_company_questions.html'
 
         case 'registration_preferences':
-            template_name = 'main/freezone/registration_preferences.html'
+            template_name = 'main/freezone/block_4/registration_preferences.html'
 
         case 'registration_preferences_detail':
-            template_name = 'main/form_blocks/inc/registration_preferences_detail.html'
+            template_name = 'main/freezone/block_4/registration_preferences_detail.html'
 
         case 'outsource':
             template_name = 'main/freezone/block_5/index.html'
@@ -82,7 +82,7 @@ def get_form(request: WSGIRequest) -> HttpResponse:
 def search_activity(request):
     query = request.GET.get('search_activity', '')
     activities_list = [(activity, activities[activity]['name']) for activity in activities.keys()]
-    return render(request, 'main/form_blocks/inc/activities_list.html', {'activities': activities_list})
+    return render(request, 'main/freezone/block_2/activities_list.html', {'activities': activities_list})
 
 def get_activity_detail(request: WSGIRequest) -> HttpResponse:
 
@@ -90,7 +90,7 @@ def get_activity_detail(request: WSGIRequest) -> HttpResponse:
         'activity': activities.get(request.GET.get('activity')),
     }
 
-    return render(request, 'main/form_blocks/inc/activity_detail.html', context)
+    return render(request, 'main/freezone/block_2/activity_detail.html', context)
 
 def get_free_economic_zones_by_emirate_name(request: WSGIRequest) -> HttpResponse:
     economic_zones = {
@@ -137,4 +137,4 @@ def get_free_economic_zones_by_emirate_name(request: WSGIRequest) -> HttpRespons
         'economic_zones': economic_zones.get(emirate_name),
     }
 
-    return render(request, 'main/form_blocks/inc/emirate_economic_zone_detail.html', context)
+    return render(request, 'main/freezone/block_4/emirate_economic_zone_detail.html', context)
