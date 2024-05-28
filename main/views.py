@@ -1,7 +1,7 @@
 from urllib.parse import parse_qs
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
@@ -39,35 +39,35 @@ def get_form(request: WSGIRequest) -> HttpResponse:
     context = {}
     match request.GET.get('part'):
         case 'activities':
-            template_name = 'main/freezone/block_2/activities.html'
+            template_name = 'main/freezone/activities/index.html'
             context['activities'] = [(activity, activities[activity]['name']) for activity in activities.keys()]
 
         case 'shareholder_question':
-            template_name = 'main/freezone/block_3/shareholder_home_company_questions.html'
+            template_name = 'main/freezone/shareholder_home/index.html'
 
         case 'registration_preferences':
-            template_name = 'main/freezone/block_4/registration_preferences.html'
+            template_name = 'main/freezone/preferences/index.html'
 
         case 'registration_preferences_detail':
-            template_name = 'main/freezone/block_4/registration_preferences_detail.html'
+            template_name = 'main/freezone/preferences/detail.html'
 
         case 'outsource':
-            template_name = 'main/freezone/block_5/index.html'
+            template_name = 'main/freezone/outsource/index.html'
 
         case 'visa':
-            template_name = 'main/freezone/block_6/index.html'
+            template_name = 'main/freezone/visa/index.html'
 
         case 'visa_detail':
-            template_name = 'main/freezone/block_6/visa_detail.html'
+            template_name = 'main/freezone/visa/detail.html'
 
         case 'shareholders':
-            template_name = 'main/freezone/block_7/index.html'
+            template_name = 'main/freezone/shareholders/index.html'
 
         case 'office_and_bank':
-            template_name = 'main/freezone/block_8/index.html'
+            template_name = 'main/freezone/office_and_bank/index.html'
 
         case 'customer_data':
-            template_name = 'main/freezone/block_9/index.html'
+            template_name = 'main/freezone/customer_data/index.html'
 
 
         case _:
@@ -82,7 +82,7 @@ def get_form(request: WSGIRequest) -> HttpResponse:
 def search_activity(request):
     query = request.GET.get('search_activity', '')
     activities_list = [(activity, activities[activity]['name']) for activity in activities.keys()]
-    return render(request, 'main/freezone/block_2/activities_list.html', {'activities': activities_list})
+    return render(request, 'main/freezone/activities/list.html', {'activities': activities_list})
 
 def get_activity_detail(request: WSGIRequest) -> HttpResponse:
 
@@ -90,7 +90,7 @@ def get_activity_detail(request: WSGIRequest) -> HttpResponse:
         'activity': activities.get(request.GET.get('activity')),
     }
 
-    return render(request, 'main/freezone/block_2/activity_detail.html', context)
+    return render(request, 'main/freezone/activities/detail.html', context)
 
 def get_free_economic_zones_by_emirate_name(request: WSGIRequest) -> HttpResponse:
     economic_zones = {
@@ -137,4 +137,4 @@ def get_free_economic_zones_by_emirate_name(request: WSGIRequest) -> HttpRespons
         'economic_zones': economic_zones.get(emirate_name),
     }
 
-    return render(request, 'main/freezone/block_4/emirate_economic_zone_detail.html', context)
+    return render(request, 'main/freezone/preferences/zone_detail.html', context)
