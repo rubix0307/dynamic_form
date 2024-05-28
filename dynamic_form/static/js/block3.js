@@ -1,3 +1,39 @@
+function listenShareholderHomeCompany() {
+    const radioButtons = document.querySelectorAll('input[name="is_home_shareholder"]');
+    const homeActivitiesArea = document.getElementById('is-home-shareholder-detail');
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value == '1' && this.checked) {
+                performActionForOne();
+            } else if (this.value == '0' && this.checked) {
+                performActionForZero();
+            }
+        });
+    });
+
+    function performActionForOne() {
+        console.log("Radio button with value 1 is selected.");
+        homeActivitiesArea.innerHTML = '';
+
+        const div = document.createElement('div');
+        div.setAttribute('hx-post', 'get_form/?part=shareholder_home_detail');
+        div.setAttribute('hx-trigger', 'load');
+        div.setAttribute('hx-target', '#is-home-shareholder-detail');
+        div.setAttribute('hx-swap', 'innerHTML');
+
+        document.body.appendChild(div);
+        htmx.process(div);
+    }
+
+    function performActionForZero() {
+        console.log("Radio button with value 0 is selected.");
+        homeActivitiesArea.innerHTML = '';
+    }
+}
+
+
+
 function checkInputsBlock3(btn) {
     let is_good = true;
 

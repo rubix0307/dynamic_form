@@ -45,6 +45,9 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'shareholder_question':
             template_name = 'main/shareholder_home/index.html'
 
+        case 'shareholder_home_detail':
+            template_name = 'main/shareholder_home/detail.html'
+
         case 'registration_preferences':
             template_name = 'main/preferences/index.html'
 
