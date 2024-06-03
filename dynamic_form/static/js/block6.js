@@ -25,15 +25,15 @@ function checkInputsBlock6(btn) {
 
     if (is_good) {
         const div = document.createElement('div');
-        div.setAttribute('hx-post', 'get_form/?part=shareholders');
+        div.setAttribute('hx-post', 'get_form/?part=office_and_bank');
         div.setAttribute('hx-trigger', 'load');
-        div.setAttribute('hx-target', '#shareholders');
+        div.setAttribute('hx-target', '#office_and_bank');
         div.setAttribute('hx-swap', 'innerHTML');
 
         document.body.appendChild(div);
         btn.style.display = 'none';
         htmx.process(div);
 
-        formScrollToElement('#shareholders')
+        formScrollToElement('#office_and_bank')
     }
 }

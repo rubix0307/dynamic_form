@@ -78,9 +78,9 @@ function checkInputsBlock3(btn) {
 
     if (is_good) {
         const div = document.createElement('div');
-        div.setAttribute('hx-post', 'get_form/?part=registration_preferences');
+        div.setAttribute('hx-post', 'get_form/?part=visa');
         div.setAttribute('hx-trigger', 'load');
-        div.setAttribute('hx-target', '#registration_preferences');
+        div.setAttribute('hx-target', '#visa');
         div.setAttribute('hx-swap', 'innerHTML');
 
         document.body.appendChild(div);
@@ -99,7 +99,7 @@ function checkInputsBlock3(btn) {
         });
 
 
-        formScrollToElement('#registration_preferences')
+        formScrollToElement('#visa')
     }
 
     return is_good;

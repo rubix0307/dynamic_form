@@ -69,8 +69,14 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'office_and_bank':
             template_name = 'main/office_and_bank/index.html'
 
+        case 'office':
+            template_name = 'main/office_and_bank/office.html'
+
         case 'customer_data':
             template_name = 'main/customer_data/index.html'
+
+        case 'uae_business_area_detail':
+            template_name = 'main/uae_business_area/detail.html'
 
 
         case _:

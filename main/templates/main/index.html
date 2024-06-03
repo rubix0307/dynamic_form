@@ -3,7 +3,7 @@
 {% block body %}
     <form action="{% url 'index' %}" method="post" class="dynamic-form">
         {% csrf_token %}
-        {% include 'main/entity_type/index.html' %}
+        {% include 'main/uae_business_area/index.html' %}
 
         <div id="space" style="min-height: 50svh;"></div>
 {#        <button type="submit">Отправить</button>#}

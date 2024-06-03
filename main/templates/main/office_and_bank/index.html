@@ -1,44 +1,22 @@
-<div class="form-group" data-block8-check-radio-office="1">
-    <div class="question">Нужен ли Вам реальный офис в ОАЭ или подойдет минимально достаточный для открытия корпоративного счета?</div>
-    <div class="option">
-        <input type="radio" value="real" name="office"  required="" aria-invalid="true" id="real_office" data-need-office-for-bank="1">
-        Да, нужен реальный
-    </div>
-    <div class="place" style="margin: 5px 0 0 20px; display: none;" id="real_office_area">
-        <div class="form-group" style="margin-bottom: 0;">
-            <div class="question">Укажите желаемую площадь:</div>
-            <div id="real_office_input_area">
-                <input type="number" min="1" placeholder="м2" id="real_office_input" name="real_office_area" data-office-area-check="1">
-            </div>
-        </div>
-    </div>
-
-
-    <div class="option">
-        <input type="radio" value="minimal" name="office"  required="" aria-invalid="true" id="minimal_office" data-need-office-for-bank="1">
-        Нужен только для открытия корпоративного счета
-    </div>
-    <div class="option">
-        <input type="radio" value="no" name="office"  required="" aria-invalid="true" id="no_office">
-        Не нужен никакой, не планирую открывать корпоративный счет
-    </div>
-</div>
-
 <div class="form-group" data-block8-check-radio-bank="1">
     <div class="question">Нужен ли Вам банк-счет в ОАЭ?</div>
     <div class="option">
-        <input type="radio" value="1" name="bank_account"  required="" aria-invalid="true">
-        Да
+        <input type="radio" value="company" name="bank_account"  required="" aria-invalid="true">
+         ДА, нужен корпоративный счет
     </div>
     <div class="option">
-        <input type="radio" value="0" name="bank_account"  required="" aria-invalid="true">
+        <input type="radio" value="private" name="bank_account"  required="" aria-invalid="true">
+        ДА, нужен только личный счет
+    </div>
+    <div class="option">
+        <input type="radio" value="no" name="bank_account"  required="" aria-invalid="true">
         Нет
     </div>
 </div>
-
+<div id="office-detail"></div>
 
 <div class="next" onclick="checkInputsBlock8(this)">Дальше</div>
-<div id="customer_data" class="form-group"></div>
+<div id="shareholders" class="form-group"></div>
 <script>
-    listenOffice()
+   listenBank()
 </script>
