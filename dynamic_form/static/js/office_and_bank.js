@@ -22,3 +22,18 @@ function listenBank() {
     });
 
 }
+
+function listenOffice() {
+    const radioButtons = document.querySelectorAll('input[name="office"]');
+    const officeArea = document.getElementById('real_office_area');
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'real' && this.checked) {
+                officeArea.style.display = 'block';
+            } else {
+                officeArea.style.display = 'none';
+            }
+        });
+    });
+}
