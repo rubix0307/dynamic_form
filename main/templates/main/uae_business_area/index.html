@@ -1,0 +1,19 @@
+<div class="form-group" data-UAEBusinessArea-check-radio="1">
+    <div class="question">Планируете ли Вы вести  деятельность на территории ОАЭ?</div>
+    <div class="option">
+        <input type="radio" value="1" name="uae_business_area"  required="" aria-invalid="true">
+        Да
+    </div>
+    <div class="option">
+        <input type="radio" value="0" name="uae_business_area"  required="" aria-invalid="true">
+        Нет
+    </div>
+</div>
+
+<div id="uae-business-area-detail"></div>
+<div class="next" onclick="UAEBusinessAreaCheck(this)">Дальше</div>
+<div id="activities"></div>
+
+<script>
+    listenUAEBusinessArea()
+</script>
