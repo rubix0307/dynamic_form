@@ -1,9 +1,14 @@
-<div class="form-group" data-block8-check-radio-bank="1">
+<div id="bank-account-question" class="form-group" data-block8-check-radio-bank="1">
     <div class="question">Нужен ли Вам банк-счет в ОАЭ?</div>
     <div class="option">
         <input type="radio" value="company" name="bank_account"  required="" aria-invalid="true">
          ДА, нужен корпоративный счет
     </div>
+    
+    <div id="bank-account-detail" style="display: none;">
+        <div class="bank_account_tab_btn" onclick="showTab('bank-account-form', '#bank-account-form-top')">Открыть анкету</div>
+    </div>
+    
     <div class="option">
         <input type="radio" value="private" name="bank_account"  required="" aria-invalid="true">
         ДА, нужен только личный счет

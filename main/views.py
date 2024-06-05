@@ -78,6 +78,9 @@ def get_form(request: WSGIRequest) -> HttpResponse:
         case 'uae_business_area_detail':
             template_name = 'main/uae_business_area/detail.html'
 
+        case 'bank_account':
+            template_name = 'main/bank_account_form/index.html'
+
 
         case _:
             return HttpResponse('soon')

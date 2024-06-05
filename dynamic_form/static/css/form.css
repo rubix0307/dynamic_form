@@ -284,3 +284,18 @@
         }
     }
 }
+
+
+.bank_account_tab_btn {
+    width: max-content;
+    padding: 0 10px;
+    margin: 5px 0 5px 25px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tg-theme-button-text-color);
+    background-color: var(--tg-theme-button-color);
+    border-radius: 5px;
+    cursor: pointer;
+}

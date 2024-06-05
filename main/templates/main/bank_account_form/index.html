@@ -1,0 +1,17 @@
+
+<div class="bank-account-form">
+    <div id="bank-account-form-top"></div>
+    <div class="next" onclick="showTab('main_tab', '#bank-account-question')">Назад</div>
+    <h2>АНКЕТА ДЛЯ ОТКРЫТИЯ СЧЕТА В БАНКЕ ОАЭ</h2>
+    
+    {% include 'main/bank_account_form/bank_name.html' %}
+    {% include 'main/bank_account_form/bank_currency.html' %}
+    {% include 'main/bank_account_form/bank_month_activity.html' %}
+    
+    {% include 'main/bank_account_form/bank_minimal_monthly_balance/index.html' %}
+
+    {% include 'main/bank_account_form/source_of_funds.html' %}
+    {% include 'main/bank_account_form/company_annual_turnover.html' %}
+    {% include 'main/bank_account_form/company_in_UAE/index.html' %}
+    
+</div>

@@ -89,3 +89,27 @@ function formScrollToElement(elementSelector) {
     }
 }
 
+
+function showTab(tabId, scrollTo) {
+    // Скрыть все элементы с классом .tab
+    let tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function(tab) {
+        tab.style.display = 'none';
+    });
+
+    // Показать элемент с указанным id
+    let tabToShow = document.getElementById(tabId);
+    if (tabToShow) {
+        tabToShow.style.display = 'block';
+    } else {
+        console.warn(`Element with id "${tabId}" not found.`);
+    }
+
+
+    if (scrollTo) {
+        formScrollToElement(scrollTo)
+    }
+}
+
+
+

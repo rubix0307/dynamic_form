@@ -3,10 +3,14 @@
 {% block body %}
     <form action="{% url 'index' %}" method="post" class="dynamic-form">
         {% csrf_token %}
-        {% include 'main/uae_business_area/index.html' %}
+        <div id="main_tab" class="tab">
+             {% include 'main/uae_business_area/index.html' %}
+{#             {% include 'main/office_and_bank/index.html' %}#}
+        </div>
+
+        <div id="bank-account-form" class="tab" style="display: none;"></div>
 
         <div id="space" style="min-height: 50svh;"></div>
-{#        <button type="submit">Отправить</button>#}
     <form>
     
 {% endblock %}
