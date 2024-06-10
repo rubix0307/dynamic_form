@@ -1,5 +1,5 @@
 function listenShareholderHomeCompany() {
-    const radioButtons = document.querySelectorAll('input[name="is_home_shareholder"]');
+    const radioButtons = document.querySelectorAll('input[name="has_home_company"]');
     const homeActivitiesArea = document.getElementById('is-home-shareholder-detail');
 
     radioButtons.forEach(radio => {

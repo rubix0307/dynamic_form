@@ -2,7 +2,7 @@
 <div class="form-group">
     <div class="question">Укажите, вид деятельности Вашей домашней компании</div>
     <div class="search" data-block3-check-text="1">
-        <input type="text" name="home_activity" id="home_activity" placeholder="Вид деятельности" required data-notactive-block3="1">
+        <input type="text" name="home_company_activity" id="home_company_activity" placeholder="Вид деятельности" required data-notactive-block3="1">
         <div class="remove" onclick="clearInput(this, '')" data-hide-block3="1"><img src="{% static 'images/clear.svg' %}" alt="My Icon" class="svg-icon"></div>
     </div>
 
@@ -10,8 +10,8 @@
         <div class="left"></div>
         <div class="right">
             <div class="caption">Целевые рынки:</div>
-            <div id="home_activity_markets" data-block3-check-text="1">
-                <input type="text" name="home_activity_market" id="home_activity_market" class="home_activity_market" placeholder="Введите название целевого рынка" required>
+            <div id="home_company_activity_markets" data-block3-check-text="1">
+                <input type="text" name="home_company_activity_market" id="home_company_activity_market" class="home_company_activity_market" placeholder="Введите название целевого рынка" required>
             </div>
             <div class="add" onclick="add_home_target_market()"><div class="symbol">+</div>Добавить целевой рынок</div>
         </div>

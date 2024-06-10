@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from enum import Enum
+from typing import Literal
 from urllib.parse import parse_qs
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -28,10 +31,82 @@ activities = {
     },
 }
 
+@dataclass
+class Activity:
+    name: str
+    specializations: list[str]
+
+
+def str_as_bool(value:str) -> bool:
+    if value and value.isdigit():
+        return bool(int(value))
+    return False
+
+def str_as_int(value:str) -> int:
+    if value and value.isdigit():
+        return int(value)
+    return None
+
+
+class FormData:
+
+    def __init__(self, request):
+        self.post = request.POST
+        self.body = {k.decode('utf-8'): [v.decode('utf-8') for v in vs] for k, vs in parse_qs(request.body).items()}
+
+        self.request = request
+        self.uae_business_area: bool = str_as_bool(self.post.get('uae_business_area'))
+        self.uae_business_full_area: bool = str_as_bool(self.post.get('uae_business_full_area'))
+
+        self.activities = self.parse_activities()
+
+        self.has_home_company: bool = str_as_bool(self.post.get('has_home_company'))
+        self.home_company_activity: str = self.body.get('home_company_activity')
+        self.home_company_activity_markets: list[str] = self.body.get('home_company_activity_market')
+        self.home_company_website: str = self.post.get('is_home_company_website')
+
+        self.is_resident = str_as_bool(self.post.get('is_resident'))
+        self.visa_required = str_as_bool(self.post.get('visa_required'))
+        self.visa_quotas: int = int(self.post.get('visa_quotas', 0))
+        self.visa_quotas_now: int = int(self.post.get('visa_quotas_now', 0))
+
+
+        self.private_shareholders_count: int = int(self.post.get('private_shareholders_count'))
+        self.legal_shareholders_count: int = int(self.post.get('legal_shareholders_count'))
+        self.legal_shareholders_registrations: list[str] = self.body.get('legal_shareholders_registrations')
+        self.shareholders_nationality: list[str] = self.body.get('shareholders_nationality')
+
+        self.full_name: str = self.post.get('full_name')
+        self.email: str = self.post.get('email')
+
+        self.bank_account: Literal['company', 'personal', 'no'] = self.post.get('bank_account')
+        if self.bank_account == 'company':
+            self.bank_name = self.post.get('bank_name')
+            self.bank_currency = self.post.get('bank_currency')
+            self.bank_month_activity_input_min = self.post.get('bank_month_activity_input_min')
+            self.bank_month_activity_input_max = self.post.get('bank_month_activity_input_max')
+            self.bank_month_activity_output_min = self.post.get('bank_month_activity_output_min')
+            self.bank_month_activity_output_max = self.post.get('bank_month_activity_output_max')
+
+            self.bank_minimal_monthly_balance = self.post.get('bank_minimal_monthly_balance')
+            if self.bank_minimal_monthly_balance == 'custom':
+                self.bank_minimal_monthly_custom_balance = self.post.get('bank_minimal_monthly_custom_balance')
+                self.bank_minimal_monthly_balance = self.bank_minimal_monthly_custom_balance
+
+            self.source_of_funds = self.post.get('source_of_funds')
+
+            self.company_annual_turnover_this_year = self.post.get('company_annual_turnover_this_year')
+            self.company_annual_turnover_next_year = self.post.get('company_annual_turnover_next_year')
+            self.company_annual_turnover_from_two_years = self.post.get('company_annual_turnover_from_two_years')
+
+    def parse_activities(self):
+        return [Activity(name=activity_name,specializations=self.body.get(f'specialization_{activity_name}')) for activity_name in self.body.get('activities', [])]
+
+
 
 def index(request: WSGIRequest) -> HttpResponse:
-
-    data = {k.decode('utf-8'): [v.decode('utf-8') for v in vs] for k, vs in parse_qs(request.body).items()}
+    if request.method == 'POST':
+        data = FormData(request)
     return render(request, 'main/index.html')
 
 @require_POST

@@ -5,7 +5,7 @@ function addLegalCounselShareholder(elementId, shareholderNumber) {
     const inputElement = document.createElement('input');
     inputElement.type = 'text';
     inputElement.id = `shareholder_${shareholderNumber}_jurisdictions`;
-    inputElement.name = inputElement.id;
+    inputElement.name = 'legal_shareholders_registrations';
     inputElement.placeholder = 'Введите юрисдикцию';
     inputElement.setAttribute('data-block7-input-value-required', '1')
     placeList.appendChild(inputElement);
@@ -95,7 +95,7 @@ function addNationalityInput(i) {
     const input = document.createElement('input');
     input.type = 'text';
     input.id = `shareholder_${i}_nationality_input`;
-    input.name = `shareholder_${i}_nationality_input`;
+    input.name = `shareholders_nationality`;
     input.placeholder = 'Введите гражданство';
     input.dataset.block7InputValueRequired = '1';
 

@@ -4,7 +4,7 @@
     <div class="question">Нужна ли Вам резидент-виза?</div>
 
     <div class="option">
-        <input type="radio" name="visa" value="1" required="" aria-invalid="true"
+        <input type="radio" name="visa_required" value="1" required="" aria-invalid="true"
         hx-post="get_form/?part=visa_detail"
         hx-trigger="click"
         hx-target="#visa-detail"
@@ -14,7 +14,7 @@
     </div>
     <div id="visa-detail"></div>
     <div class="option">
-        <input type="radio" name="visa" value="0" required="" aria-invalid="true" onclick="clearById('visa-detail')">
+        <input type="radio" name="visa_required" value="0" required="" aria-invalid="true" onclick="clearById('visa-detail')">
         Нет
     </div>
 </div>

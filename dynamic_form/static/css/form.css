@@ -134,17 +134,17 @@
         }
     }
 
-    #home_activity {
+    #home_company_activity {
         width: calc(100% - 8px);
     }
-    #home_activity-market-list {
+    #home-company-activity-market-list {
         width: 100%;
 
         & .caption {
             font-size: 14px;
             margin: 15px 0 5px 0;
         }
-        & #home_activity_market {
+        & #home_company_activity_market {
             width: calc(100% - 8px);
         }
     }
@@ -200,7 +200,7 @@
         margin-bottom: 0;
     }
 }
-.home_activity_market {
+.home_company_activity_market {
     width: calc(100% - 8px);
     margin: 5px 0;
     padding-left: 5px;
