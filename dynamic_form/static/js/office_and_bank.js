@@ -28,7 +28,7 @@ function listenBank() {
 
 
 
-            } else if ((this.value === 'no' || this.value === 'private') && this.checked) {
+            } else if (this.checked) {
                 let bankAccountForm = document.getElementById('bank-account-form');
                 officeDetail.innerHTML = '';
                 bankAccountDetail.style.display = 'none';

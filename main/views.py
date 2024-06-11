@@ -145,7 +145,7 @@ def get_form(request: WSGIRequest) -> HttpResponse:
             template_name = 'main/office_and_bank/index.html'
 
         case 'office':
-            template_name = 'main/office_and_bank/office.html'
+            template_name = 'main/office_and_bank/detail.html'
 
         case 'customer_data':
             template_name = 'main/customer_data/index.html'
