@@ -9,11 +9,23 @@
                 {% for payment in solution.payments.payments %}
                     {% if payment.value %}
                         <div class="payment">
+
                             <div class="description">{{ payment.description }}</div>
+                            {% if payment.values %}
+                                <ul class="payment" style="flex-direction: column; border: none;">
+                                {% for value in payment.values %}
+                                	<div class="value">
+                                        <div class="description">{{ value.description }}</div>
+                                        <div data-price="{{ value.value|floatformat:2 }}"></div>
+                                    </div>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
                             <div class="value">
                                 {% if payment.is_start_value %}<div style="margin-right: 5px;">от</div>{% endif %}
-                                <div data-price="{{ payment.value|floatformat:2 }}"></div>
-                            </div>
+                            <div data-price="{{ payment.value|floatformat:2 }}"></div>
+                        </div>
+
                         </div>
                     {% endif %}
                 {% endfor %}

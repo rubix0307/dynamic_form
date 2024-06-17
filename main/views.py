@@ -204,11 +204,26 @@ class FormData:
 
 
 @dataclass
-class TempPriceDataView:
-    description: str
+class PriceDataValueView:
+    name: str
     value: str
-    is_start_value: bool = False
 
+
+class TempPriceDataView:
+
+    def __init__(self,
+                 description:str,
+                 value = None,
+                 values: list[PriceDataValueView] = None,
+                 is_start_value: bool= False
+                ) -> None:
+        self.description=description
+        self.value=value
+        self.values=values
+        self.is_start_value=is_start_value
+
+        if values:
+            self.value=sum([v.value for v in values])
 
 class Payments:
     def __init__(self, payments: list[TempPriceDataView], price_total, cost_price_total):
@@ -221,12 +236,12 @@ class Payments:
 class UnavailableOption:
     name: str
 
-@dataclass
-class Solution:
-    place_name: str
-    payments: Payments
-    unavailable: list[UnavailableOption] = None
 
+class Solution:
+    def __init__(self, place_name: str, payments: Payments, unavailable: list[UnavailableOption] = None) -> None:
+        self.place_name = place_name
+        self.payments = payments
+        self.unavailable = [u for u in unavailable if u] if unavailable else None
 
 
 class PriceData:
@@ -236,32 +251,38 @@ class PriceData:
 
     def get_solutions(self):
         solutions = []
+        solutions.append(self.other_payments())
         solutions.append(self.offshore())
         solutions.append(self.mainland())
         solutions.append(self.ifza())
         return solutions
 
-    def get_required_payments(self):
+    def other_payments(self):
         """
         Payments that dont depend on the place of the company
         """
-        required_payments = []
+        payments = []
 
-        if self.data.bank_account == 'company' and self.data.contract_of_residence == 'minimal':
-            # TODO make payment object
-            required_payments.append({
-                'name': 'Контракт на проживание',
-                'price': [
-                    {'name': 'Tenancy contract', 'price': 18300},
-                    {'name': 'DEWA Registration', 'price': 2200},
-                ],
-                'cost_price': [
-                    {'name': 'Contract of residence', 'price': 12500},
-                    {'name': 'DEWA Registration', 'price': 2200},
-                ]
-            })
+        if self.data.contract_of_residence == 'minimal':
+            payments.append(
+                TempPriceDataView(
+                    description='Контракт на проживание',
+                    values=[
+                        TempPriceDataView(description='Tenancy contract', value=18300),
+                        TempPriceDataView(description='DEWA Registration', value=2200),
+                    ]
+            ))
 
-        return required_payments
+
+
+        return Solution(
+            place_name='Другие платежи',
+            payments=Payments(
+                payments=payments,
+                price_total=sum([p.value for p in payments]),
+                cost_price_total=None
+            ),
+        )
 
     def offshore(self):
         activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
