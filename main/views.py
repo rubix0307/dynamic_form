@@ -169,7 +169,9 @@ class FormData:
         self.legal_shareholders_count: int = int(self.post.get('legal_shareholders_count', 0))
         self.legal_shareholders_registrations: list[str] = self.body.get('legal_shareholders_registrations')
         self.shareholders_nationality: list[str] = self.body.get('shareholders_nationality')
-
+        self.nominal_shareholder = self.post.get('nominal_shareholder')
+        self.nominal_director = self.post.get('nominal_director')
+        self.nominal_secretary = self.post.get('nominal_secretary')
         self.full_name: str = self.post.get('full_name')
         self.email: str = self.post.get('email')
 
@@ -251,11 +253,20 @@ class PriceData:
 
     def get_solutions(self):
         solutions = []
-        solutions.append(self.other_payments())
+        other_payments = self.other_payments()
         solutions.append(self.offshore())
         solutions.append(self.mainland())
         solutions.append(self.ifza())
+
+        for solution in solutions:
+            solution.payments.payments.append(
+                TempPriceDataView(description='Другие платежи', value=other_payments.payments.price_total)
+            )
+            solution.payments.price_total += other_payments.payments.price_total
+
+        solutions.append(other_payments)
         return solutions
+
 
     def other_payments(self):
         """
@@ -273,7 +284,14 @@ class PriceData:
                     ]
             ))
 
+        if any([self.data.nominal_shareholder,self.data.nominal_director, self.data.nominal_secretary]):
+            value, description = self.calculate_nominal_service()
 
+            payments.append(
+                TempPriceDataView(
+                    description=description,
+                    value=value,
+                ))
 
         return Solution(
             place_name='Другие платежи',
@@ -565,6 +583,35 @@ class PriceData:
 
         return bank_account_registration_service
 
+    def calculate_nominal_service(self):
+        shareholder = self.data.nominal_shareholder
+        director = self.data.nominal_director
+        secretary = self.data.nominal_secretary
+
+        if shareholder and director and secretary:
+            return 9182.5, 'Номинальный сервис (акционер, директор, секретарь)'
+
+        if secretary and (shareholder or director):
+            if shareholder and director:
+                return 9182.50, 'Номинальный сервис (акционер, директор, секретарь)'
+            return 5509.5, f'Номинальный сервис (секретарь, {"акционер" if shareholder else "директор"})'
+
+        if shareholder and director:
+            return 9182.5, 'Номинальный сервис (акционер, директор)'
+
+        cost = 0
+        description = 'Номинальный сервис '
+        if shareholder:
+            cost += 4407.6
+            description += '(акционер) '
+        if director:
+            cost += 4407.6
+            description += '(директор) '
+        if secretary:
+            cost += 1836.50
+            description += '(секретарь) '
+
+        return cost, description.strip()
 
 
 def index(request: WSGIRequest) -> HttpResponse:
