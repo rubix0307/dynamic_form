@@ -47,3 +47,42 @@ input {
   color: var(--tg-theme-text-color);
   background-color: transparent;
 }
+
+
+
+
+.solutions {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+
+
+  .payments {
+    .payment {
+      border-bottom: 1px solid #0088cc;
+      padding-bottom: 2px;
+      width: 100%;
+      /* background-color: red; */
+      display: flex;
+      justify-content: space-between;
+
+      .value {
+        margin-left: 45px;
+        display: flex;
+        justify-content: space-around;
+      }
+    }
+  }
+  .price_total {
+    text-align: right;
+    display: flex;
+    justify-content: space-between;
+
+    .value {
+      display: flex;
+    }
+  }
+}
+.decimal {
+  font-size: 80%;
+}

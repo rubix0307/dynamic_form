@@ -1,0 +1,48 @@
+<div class="solutions">
+
+    {% for solution in solutions %}
+        <div class="solution">
+            <h2 class="place_name">{{ solution.place_name }}</h2>
+
+            <div class="payments">
+                <div class="caption">Платежи:</div>
+                {% for payment in solution.payments.payments %}
+                    {% if payment.value %}
+                        <div class="payment">
+                            <div class="description">{{ payment.description }}</div>
+                            <div class="value">
+                                {% if payment.is_start_value %}<div style="margin-right: 5px;">от</div>{% endif %}
+                                <div data-price="{{ payment.value|floatformat:2 }}"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="price_total">
+                Всего:
+                <div class="value">
+                    {% if solution.payments.is_start_value %}<div style="margin-right: 5px;">от</div>{% endif %}
+                        <div data-price="{{ solution.payments.price_total|floatformat:2 }}"></div>
+                </div>
+            </div>
+
+            <div class="unavailable">
+                {% if solution.unavailable %}
+                    <ul>
+                        <div>Недоступно:</div>
+                        {% for unavailable in solution.unavailable %}
+                            {% if unavailable %}
+                                <li>{{ unavailable.name }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+
+                {% endif %}
+            </div>
+
+        </div>
+    {% endfor %}
+
+</div>
