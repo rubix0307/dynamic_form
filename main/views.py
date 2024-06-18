@@ -254,17 +254,15 @@ class PriceData:
     def get_solutions(self):
         solutions = []
         other_payments = self.other_payments()
+
         solutions.append(self.offshore())
         solutions.append(self.mainland())
         solutions.append(self.ifza())
 
         for solution in solutions:
-            solution.payments.payments.append(
-                TempPriceDataView(description='Другие платежи', value=other_payments.payments.price_total)
-            )
+            solution.payments.payments += other_payments.payments.payments
             solution.payments.price_total += other_payments.payments.price_total
 
-        solutions.append(other_payments)
         return solutions
 
 
