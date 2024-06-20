@@ -299,3 +299,17 @@
     border-radius: 5px;
     cursor: pointer;
 }
+
+#bank_names {
+    margin: 10px 0 0 25px;
+
+    & #bank-names-list {
+        max-height: max(90svh, 200px);
+        overflow-y: scroll;
+        padding: 0;
+
+        & li {
+            list-style: none;
+        }
+    }
+}

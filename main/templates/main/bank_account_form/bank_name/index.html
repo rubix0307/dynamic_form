@@ -2,12 +2,12 @@
     <div class="question">Название банка, в котором Вы хотите открыть счет:</div>
 
     <div class="option">
-        <input type="radio" name="bank_name" value="1" required="" aria-invalid="true">
+        <input type="radio" name="bank_name" value="1" required="" aria-invalid="true" onclick="handleBankSelection(this)">
         Предпочтительные
     </div>
     <div id="bank-name-detail"></div>
     <div class="option">
-        <input type="radio" name="bank_name" value="0" required="" aria-invalid="true">
+        <input type="radio" name="bank_name" value="0" required="" aria-invalid="true" onclick="handleBankSelection(this)">
         Нет предпочтений
     </div>
 </div>

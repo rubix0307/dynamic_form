@@ -1,0 +1,15 @@
+{% load static %}
+<div id="bank_names">
+    <div class="search">
+        <input type="text" name="search_bank_name" id="id_search_bank_name" placeholder="Поиск банка">
+        <div class="remove" onclick="clearInput(this)"><img src="{% static 'images/clear.svg' %}" alt="My Icon" class="svg-icon"></div>
+    </div>
+    <ul id="bank-names-list">
+        {% for bank in bank_names %}
+            <li>
+                <input type="checkbox" name="bank_names" value="{{ bank.id }}">
+                {{ bank.name }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
