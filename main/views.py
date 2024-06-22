@@ -263,6 +263,7 @@ class PriceData:
         solutions.append(self.offshore())
         solutions.append(self.mainland())
         solutions.append(self.ifza())
+        solutions.append(self.uaq())
 
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
@@ -583,6 +584,41 @@ class PriceData:
             payments=payments_data,
             unavailable=unavailable,
         )
+
+    def uaq(self) -> Solution:
+
+
+
+        activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+
+        # professional services
+        registration_service = 6600
+
+        cost_price_total = sum([
+            activities_cost_price_total,
+        ])
+        price_total = sum([
+            activities_price_total,
+            registration_service,
+        ])
+
+
+        payments = get_payments(
+            activities_price_total=activities_price_total,
+            registration_service=registration_service,
+        )
+        payments_data = Payments(
+            payments=payments,
+            price_total=price_total,
+            cost_price_total=cost_price_total,
+        )
+        unavailable = []
+        return Solution(
+            place_name='UAQ (in process)',
+            payments=payments_data,
+            unavailable=unavailable,
+        )
+
 
     def calculate_activities(self, free_count, price):
         specializations_count = len(sum([a.specializations for a in self.data.activities], []))
