@@ -3,11 +3,14 @@ from enum import Enum
 from typing import Literal
 from urllib.parse import parse_qs
 
+import django.db.models
 from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
+from main.models import Bank
 
 activities = {
     'construction': {
@@ -191,8 +194,7 @@ class FormData:
         self.bank_account: Literal['company', 'personal', 'no'] = self.post.get('bank_account')
         self.contract_of_residence: Literal['self', 'minimal'] = self.post.get('contract_of_residence')
 
-
-        self.bank_name = self.post.get('bank_name')
+        self.banks: QuerySet = Bank.objects.filter(id__in=self.body.get('bank_names'))
         self.bank_currency = self.post.get('bank_currency')
         self.bank_month_activity_input_min = self.post.get('bank_month_activity_input_min')
         self.bank_month_activity_input_max = self.post.get('bank_month_activity_input_max')
@@ -785,207 +787,7 @@ def get_form(request: WSGIRequest) -> HttpResponse:
 
         case 'banks_name_list':
             template_name = 'main/bank_account_form/bank_name/list.html'
-            context['bank_names'] =  [
-                {
-                    "name": "National Bank of Bahrain",
-                    "name_arabic": "بنك البحرين الوطني",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Manama, Bahrain",
-                },
-                {
-                    "name": "Rafidain Bank",
-                    "name_arabic": "مصرف الرافدين",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Baghdad, Iraq",
-                },
-                {
-                    "name": "Arab Bank",
-                    "name_arabic": "البنك العربي",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Amman, Jordan",
-                },
-                {
-                    "name": "Banque Misr",
-                    "name_arabic": "بنك مصر",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Cairo, Egypt",
-                },
-                {
-                    "name": "El Nilein Bank",
-                    "name_arabic": "بنك النيلين",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Abu Dhabi, UAE",
-                },
-                {
-                    "name": "National Bank of Oman",
-                    "name_arabic": "البنك الوطني العماني",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Muscat, Oman",
-                },
-                {
-                    "name": "Credit Agricole",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Montrouge, France",
-                },
-                {
-                    "name": "Bank of Baroda",
-                    "name_arabic": "بنك برودا",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Vadodara, India",
-                },
-                {
-                    "name": "BNP Paribas",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Paris, France",
-                },
-                {
-                    "name": "Janata Bank Limited",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Dhaka, Bangladesh",
-                },
-                {
-                    "name": "HSBC Bank Middle East Limited",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "London, UK",
-                },
-                {
-                    "name": "Arab African International Bank",
-                    "name_arabic": "البنك العربي الافريقي الدولي",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Cairo, Egypt",
-                },
-                {
-                    "name": "Al Khaliji",
-                    "name_arabic": "الخليجي",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Doha, Qatar",
-                },
-                {
-                    "name": "Al Ahli Bank of Kuwait",
-                    "name_arabic": "بنك الاهلي",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Kuwait City, Kuwait",
-                },
-                {
-                    "name": "Habib Bank Ltd.",
-                    "name_arabic": "حبيب بنك المحدود",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Karachi, Pakistan",
-                },
-                {
-                    "name": "Habib Bank A.G Zurich",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Zürich, Switzerland",
-                },
-                {
-                    "name": "Standard Chartered Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "London, UK",
-                },
-                {
-                    "name": "Citibank N. A.",
-                    "name_arabic": "سيتي بنك",
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "New York, United States",
-                },
-                {
-                    "name": "Bank Saderat Iran",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Tehran, Iran",
-                },
-                {
-                    "name": "Bank Melli Iran",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Tehran, Iran",
-                },
-                {
-                    "name": "Banque Banorient France",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Paris, France",
-                },
-                {
-                    "name": "NatWest Markets Plc",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "London, UK",
-                },
-                {
-                    "name": "United Bank Ltd.",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Karachi, Pakistan",
-                },
-                {
-                    "name": "Doha Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Doha, Qatar",
-                },
-                {
-                    "name": "Saudi National Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Jeddah, Saudi Arabia",
-                },
-                {
-                    "name": "National Bank of Kuwait",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "Kuwait City, Kuwait",
-                },
-                {
-                    "name": "BOK International Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Khartum, Sudan",
-                },
-                {
-                    "name": "American Express Bank",
-                    "name_arabic": "أمريكان إكسبريس",
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Buffalo, United States",
-                },
-                {
-                    "name": "Deutsche Bank AG",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Frankfurt, Germany",
-                },
-                {
-                    "name": "KEB Hana Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Seoul, South Korea",
-                },
-                {
-                    "name": "Barclays Bank PLC",
-                    "name_arabic": None,
-                    "head_office_UAE": "Dubai",
-                    "headquarters": "London, UK",
-                },
-                {
-                    "name": "Bank of China Limited",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Beijing, China",
-                },
-                {
-                    "name": "Gulf International Bank",
-                    "name_arabic": None,
-                    "head_office_UAE": "Abu Dhabi",
-                    "headquarters": "Manama, Bahrain",
-                }
-
-            ]
+            context['bank_names'] = Bank.objects.all()
 
 
         case _:
