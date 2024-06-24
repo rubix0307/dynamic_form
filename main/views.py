@@ -33,6 +33,7 @@ activities = {
 
 
 def get_payments(
+        custom_payments=None,
         activities_price_total=None,
         activities_price_total_start_value=None,
         visa_quotas_price_total=None,
@@ -60,69 +61,73 @@ def get_payments(
     payments = []
 
     if activities_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Регистрация видов деятельности',
             value=activities_price_total,
             is_start_value=activities_price_total_start_value,
         ))
     if visa_quotas_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Визовые квоты',
             value=visa_quotas_price_total,
             is_start_value=visa_quotas_price_total_start_value,
         ))
     if visa_now_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Выпуск виз',
             value=visa_now_price_total,
             is_start_value=visa_now_price_total_start_value,
         ))
     if visa_now_services:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Услуга по выпуску виз',
             value=visa_now_services,
             is_start_value=visa_now_services_start_value,
         ))
     if private_shareholders_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Регистрация всех акционеров физ. лиц',
             value=private_shareholders_price_total,
             is_start_value=private_shareholders_price_total_start_value,
         ))
     if legal_shareholders_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Регистрация всех акционеров юр. лиц',
             value=legal_shareholders_price_total,
             is_start_value=legal_shareholders_price_total_start_value,
         ))
     if bank_account_registration_service:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Регистрация корпоративного счёта',
             value=bank_account_registration_service,
             is_start_value=bank_account_registration_service_start_value,
         ))
     if office_price_total:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Аренда офиса',
             value=office_price_total,
             is_start_value=office_price_start_value,
         ))
     if office_search_service:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Услуга по подбору офиса',
             value=office_search_service,
             is_start_value=office_search_service_start_value,
         ))
 
     if company_registration:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Регистрация компании',
             value=company_registration,
             is_start_value=company_registration_start_value,
         ))
 
+    if custom_payments:
+        payments += custom_payments
+
+
     if registration_service:
-        payments.append(TempPriceDataView(
+        payments.append(PriceDataView(
             description='Профессиональные услуги',
             value=registration_service,
             is_start_value=registration_service_start_value,
@@ -170,7 +175,7 @@ class FormData:
         self.visa_quotas: int = int(self.post.get('visa_quotas', 0))
         self.visa_quotas_now: int = int(self.post.get('visa_quotas_now', 0))
 
-        self.office: Literal['real', 'minimal'] = self.post.get('office')
+        self.office: Literal['real', 'minimal', 'no'] = self.post.get('office')
         self.real_office_area = self.post.get('real_office_area')
 
         self.private_shareholders_count: int = int(self.post.get('private_shareholders_count', 0))
@@ -216,7 +221,7 @@ class PriceDataValueView:
     value: str
 
 
-class TempPriceDataView:
+class PriceDataView:
 
     def __init__(self,
                  description:str,
@@ -233,7 +238,7 @@ class TempPriceDataView:
             self.value=sum([v.value for v in values])
 
 class Payments:
-    def __init__(self, payments: list[TempPriceDataView], price_total, cost_price_total):
+    def __init__(self, payments: list[PriceDataView], price_total, cost_price_total):
         self.payments = payments
         self.is_start_value = any([p.is_start_value for p in payments])
         self.price_total = price_total
@@ -280,11 +285,11 @@ class PriceData:
 
         if self.data.contract_of_residence == 'minimal':
             payments.append(
-                TempPriceDataView(
+                PriceDataView(
                     description='Контракт на проживание',
                     values=[
-                        TempPriceDataView(description='Tenancy contract', value=18300),
-                        TempPriceDataView(description='DEWA Registration', value=2200),
+                        PriceDataView(description='Tenancy contract', value=18300),
+                        PriceDataView(description='DEWA Registration', value=2200),
                     ]
             ))
 
@@ -292,7 +297,7 @@ class PriceData:
             value, description = self.calculate_nominal_service()
 
             payments.append(
-                TempPriceDataView(
+                PriceDataView(
                     description=description,
                     value=value,
                 ))
@@ -459,9 +464,6 @@ class PriceData:
             unavailable=unavailable,
         )
 
-
-
-
     def ifza(self) -> Solution:
         activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
         bank_account_registration_service = self.calculate_bank_account_registration_service()
@@ -586,25 +588,81 @@ class PriceData:
         )
 
     def uaq(self) -> Solution:
-
-
-
+        custom_payments = []
         activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+
+        visa_quotas_price_total = 0
+        visa_quotas_cost_price_total = 0
+        if self.data.visa_quotas == 1 and (self.data.office == 'no' or not self.data.office) and (self.data.bank_account == 'no' or not self.data.bank_account):
+            visa_quota_payment = PriceDataView(
+                description='1 visa quota',
+                values=[
+                    PriceDataView(description='License package', value=13900),
+                    PriceDataView(description='Establishment Card', value=0),
+                    PriceDataView(description='Emirates ID', value=400),
+                    PriceDataView(description='Medical', value=400),
+                ]
+            )
+            custom_payments.append(visa_quota_payment)
+
+            visa_quotas_cost_price_total = visa_quota_payment.value
+            visa_quotas_price_total = visa_quotas_cost_price_total
+
+        elif self.data.bank_account == 'company':
+            visa_quota_payment = PriceDataView(
+                description='Аренда офиса',
+                values=[
+                    PriceDataView(description='Registration fee', value=2000),
+                    PriceDataView(description='License fee', value=2500),
+                    PriceDataView(description='Office cost', value=21800),
+                    PriceDataView(description='Deposit for Office (refundable) ', value=2180),
+                    PriceDataView(description='Establishment Card', value=0),
+                ]
+            )
+            custom_payments.append(visa_quota_payment)
+
+            visa_quotas_cost_price_total = visa_quota_payment.value
+            visa_quotas_price_total = visa_quotas_cost_price_total
+
+        visa_now_price_total = 0
+        visa_now_cost_price_total = 0
+        visa_now_services = 0
+        if self.data.visa_quotas_now:
+            visa_charge = PriceDataView(
+                description='Visa charges',
+                values=[
+                    PriceDataView(description='Visa Charges (Investor / Employee — 2 years validity)', value=2500),
+                    PriceDataView(description='Medical & Emirates ID', value=800),
+                ]
+            )
+            visa_quota_now_service = 4750
+
+            visa_now_price_total = (visa_charge.value * self.data.visa_quotas_now) # TODO
+            visa_now_cost_price_total = visa_now_price_total
+            visa_now_services = (visa_quota_now_service * self.data.visa_quotas_now)
+
 
         # professional services
         registration_service = 6600
 
         cost_price_total = sum([
             activities_cost_price_total,
+            visa_quotas_cost_price_total,
+            visa_now_cost_price_total,
         ])
         price_total = sum([
             activities_price_total,
+            visa_quotas_price_total,
+            visa_now_price_total,
+            visa_now_services,
             registration_service,
         ])
 
 
-        payments = get_payments(
+        payments = get_payments(custom_payments=custom_payments,
             activities_price_total=activities_price_total,
+            visa_now_price_total=visa_now_price_total,
+            visa_now_services=visa_now_services,
             registration_service=registration_service,
         )
         payments_data = Payments(
@@ -614,7 +672,7 @@ class PriceData:
         )
         unavailable = []
         return Solution(
-            place_name='UAQ (in process)',
+            place_name='UAQ (in progress)',
             payments=payments_data,
             unavailable=unavailable,
         )
@@ -637,7 +695,7 @@ class PriceData:
 
         return bank_account_registration_service
 
-    def calculate_nominal_service(self):
+    def calculate_nominal_service(self) -> (int, str):
         shareholder = self.data.nominal_shareholder
         director = self.data.nominal_director
         secretary = self.data.nominal_secretary
