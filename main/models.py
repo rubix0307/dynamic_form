@@ -13,3 +13,11 @@ class Bank(models.Model):
 
     class Meta:
         db_table = 'bank'
+
+
+class Activity(models.Model):
+    name = models.CharField(max_length=255)
+
+class Specialization(models.Model):
+    name = models.CharField(max_length=255)
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='specialization')

@@ -10,29 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
-from main.models import Bank
-
-activities = {
-    'construction': {
-        'id':'construction',
-        'name':'Construction',
-        'specializations': [
-            {'name':'Demolition and site preparation'},
-            {'name':'Electrical, plumbing and other construction installation activities'},
-            {'name':'Building completion and finishing'},
-            {'name':'Other specialized construction activities'},
-        ]
-    },
-    'wholesale_and_retail_trade_repair_of_motor_vehicles_and_motorcycles': {
-        'id':'wholesale_and_retail_trade_repair_of_motor_vehicles_and_motorcycles',
-        'name':'Wholesale and retail trade; repair of motor vehicles and motorcycles',
-        'specializations': [
-            {'name':'Retail sale of information and communications equipment in specialized stores'},
-            {'name':'Retail sale of cultural and recreation goods in specialized stores'},
-            {'name':'Retail sale of other goods in specialized stores'},
-        ]
-    },
-}
+from main.models import Activity, Bank, Specialization
 
 
 def get_payments(
@@ -140,9 +118,9 @@ def get_payments(
 
 
 @dataclass
-class Activity:
-    name: str
-    specializations: list[str]
+class ActivityData:
+    activity: Activity
+    specializations: list[Specialization]
 
 
 def str_as_bool(value:str) -> bool:
@@ -194,7 +172,7 @@ class FormData:
         self.bank_account: Literal['company', 'personal', 'no'] = self.post.get('bank_account')
         self.contract_of_residence: Literal['self', 'minimal'] = self.post.get('contract_of_residence')
 
-        self.banks: QuerySet = Bank.objects.filter(id__in=self.body.get('bank_names'))
+        self.banks: QuerySet = Bank.objects.filter(id__in=self.body.get('bank_names', []))
         self.bank_currency = self.post.get('bank_currency')
         self.bank_month_activity_input_min = self.post.get('bank_month_activity_input_min')
         self.bank_month_activity_input_max = self.post.get('bank_month_activity_input_max')
@@ -213,7 +191,18 @@ class FormData:
         self.company_annual_turnover_from_two_years = self.post.get('company_annual_turnover_from_two_years')
 
     def parse_activities(self):
-        return [Activity(name=activity_name,specializations=self.body.get(f'specialization_{activity_name}')) for activity_name in self.body.get('activities', [])]
+        activities = []
+        for activity_id in self.body.get('activities', []):
+            activity = Activity.objects.get(id=activity_id)
+            specializations = list(Specialization.objects.filter(id__in=self.body.get(f'specialization_{activity_id}',[])).all())
+            activities.append(
+                ActivityData(
+                    activity=activity,
+                    specializations=specializations,
+                )
+            )
+
+        return activities
 
 
 
@@ -240,10 +229,10 @@ class PriceDataView:
             self.value=sum([v.value for v in values])
 
 class Payments:
-    def __init__(self, payments: list[PriceDataView], price_total, cost_price_total):
+    def __init__(self, payments: list[PriceDataView], cost_price_total):
         self.payments = payments
         self.is_start_value = any([p.is_start_value for p in payments])
-        self.price_total = price_total
+        self.price_total = sum(p.value for p in payments)
         self.cost_price_total = cost_price_total
 
 @dataclass
@@ -267,10 +256,18 @@ class PriceData:
         solutions = []
         other_payments = self.other_payments()
 
-        solutions.append(self.offshore())
-        solutions.append(self.mainland())
-        solutions.append(self.ifza())
-        solutions.append(self.uaq())
+        if self.data.uae_business_area:
+            if self.data.uae_business_full_area:
+                solutions.append(self.mainland())
+            else:
+                solutions.append(self.mainland())
+                solutions.append(self.ifza())
+                solutions.append(self.uaq())
+        else:
+            solutions.append(self.offshore())
+            solutions.append(self.mainland())
+            solutions.append(self.ifza())
+            solutions.append(self.uaq())
 
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
@@ -308,7 +305,6 @@ class PriceData:
             place_name='Другие платежи',
             payments=Payments(
                 payments=payments,
-                price_total=sum([p.value for p in payments]),
                 cost_price_total=None
             ),
         )
@@ -370,7 +366,6 @@ class PriceData:
 
         payments_data = Payments(
             payments=payments,
-            price_total=price_total,
             cost_price_total=cost_price_total,
         )
 
@@ -457,7 +452,6 @@ class PriceData:
 
         payments_data = Payments(
             payments=payments,
-            price_total=price_total,
             cost_price_total=cost_price_total,
         )
         return Solution(
@@ -529,7 +523,7 @@ class PriceData:
             office_search_service = 3000
 
         elif self.data.office == 'minimal':
-            office_cost_price = 13500
+            office_cost_price = 13900
             office_price_total = office_cost_price
             office_search_service = 0
 
@@ -580,7 +574,6 @@ class PriceData:
 
         payments_data = Payments(
             payments=payments,
-            price_total=price_total,
             cost_price_total=cost_price_total,
         )
         return Solution(
@@ -592,27 +585,30 @@ class PriceData:
     def uaq(self) -> Solution:
         custom_payments = []
         activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+        bank_account_registration_service = self.calculate_bank_account_registration_service()
 
-        visa_quotas_price_total = 0
-        visa_quotas_cost_price_total = 0
+        visa_now_price_total = 0
+        visa_now_cost_price_total = 0
+        visa_now_services = 0
+
         if self.data.visa_quotas == 1 and (self.data.office == 'no' or not self.data.office) and (self.data.bank_account == 'no' or not self.data.bank_account):
-            visa_quota_payment = PriceDataView(
-                description='1 visa quota',
+            package_1 = PriceDataView(
+                description='Пакетное предложение 1',
                 values=[
                     PriceDataView(description='License package', value=13900),
                     PriceDataView(description='Establishment Card', value=0),
-                    PriceDataView(description='Emirates ID', value=400),
-                    PriceDataView(description='Medical', value=400),
+                    PriceDataView(description='Выпуск визы',
+                                  values=[
+                                      PriceDataView(description='Emirates ID', value=400),
+                                      PriceDataView(description='Medical', value=400),
+                                  ])
                 ]
             )
-            custom_payments.append(visa_quota_payment)
+            custom_payments.append(package_1)
 
-            visa_quotas_cost_price_total = visa_quota_payment.value
-            visa_quotas_price_total = visa_quotas_cost_price_total
-
-        elif self.data.bank_account == 'company':
-            visa_quota_payment = PriceDataView(
-                description='Аренда офиса',
+        else:
+            package_2 = PriceDataView(
+                description='Пакетное предложение 2',
                 values=[
                     PriceDataView(description='Registration fee', value=2000),
                     PriceDataView(description='License fee', value=2500),
@@ -621,27 +617,31 @@ class PriceData:
                     PriceDataView(description='Establishment Card', value=0),
                 ]
             )
-            custom_payments.append(visa_quota_payment)
+            custom_payments.append(package_2)
 
-            visa_quotas_cost_price_total = visa_quota_payment.value
-            visa_quotas_price_total = visa_quotas_cost_price_total
+            if self.data.visa_quotas_now:
+                visa_charge = PriceDataView(
+                    description='Visa charges',
+                    values=[
+                        PriceDataView(description='Visa Charges (Investor / Employee — 2 years validity)', value=2500),
+                        PriceDataView(description='Medical & Emirates ID', value=800),
+                    ]
+                )
+                visa_professional_services = 4750
+                visa_now_price_total = (visa_charge.value * self.data.visa_quotas_now) * 1.05
+                visa_now_services = (visa_professional_services * self.data.visa_quotas_now) * 1.05
 
-        visa_now_price_total = 0
-        visa_now_cost_price_total = 0
-        visa_now_services = 0
-        if self.data.visa_quotas_now:
-            visa_charge = PriceDataView(
-                description='Visa charges',
-                values=[
-                    PriceDataView(description='Visa Charges (Investor / Employee — 2 years validity)', value=2500),
-                    PriceDataView(description='Medical & Emirates ID', value=800),
-                ]
-            )
-            visa_quota_now_service = 4750
 
-            visa_now_price_total = (visa_charge.value * self.data.visa_quotas_now) # TODO
-            visa_now_cost_price_total = visa_now_price_total
-            visa_now_services = (visa_quota_now_service * self.data.visa_quotas_now)
+        private_shareholders_price_total = 0
+        max_private_shareholders_count = 4
+        if self.data.private_shareholders_count > max_private_shareholders_count:
+            return None
+
+        # legal_shareholder
+        legal_shareholder_price = 2000
+        legal_shareholders_price_total = legal_shareholder_price * self.data.legal_shareholders_count
+        legal_shareholders_price_total_start_value = True
+
 
 
         # professional services
@@ -649,32 +649,26 @@ class PriceData:
 
         cost_price_total = sum([
             activities_cost_price_total,
-            visa_quotas_cost_price_total,
             visa_now_cost_price_total,
         ])
-        price_total = sum([
-            activities_price_total,
-            visa_quotas_price_total,
-            visa_now_price_total,
-            visa_now_services,
-            registration_service,
-        ])
-
 
         payments = get_payments(custom_payments=custom_payments,
             activities_price_total=activities_price_total,
             visa_now_price_total=visa_now_price_total,
             visa_now_services=visa_now_services,
+            bank_account_registration_service=bank_account_registration_service,
+            private_shareholders_price_total=private_shareholders_price_total,
+            legal_shareholders_price_total=legal_shareholders_price_total,
+            legal_shareholders_price_total_start_value=legal_shareholders_price_total_start_value,
             registration_service=registration_service,
         )
         payments_data = Payments(
             payments=payments,
-            price_total=price_total,
             cost_price_total=cost_price_total,
         )
         unavailable = []
         return Solution(
-            place_name='UAQ (in progress)',
+            place_name='UAQ',
             payments=payments_data,
             unavailable=unavailable,
         )
@@ -744,7 +738,7 @@ def get_form(request: WSGIRequest) -> HttpResponse:
     match request.GET.get('part'):
         case 'activities':
             template_name = 'main/activities/index.html'
-            context['activities'] = [(activity, activities[activity]['name']) for activity in activities.keys()]
+            context['activities'] = Activity.objects.all()
 
         case 'shareholder_question':
             template_name = 'main/shareholder_home/index.html'
@@ -798,16 +792,11 @@ def get_form(request: WSGIRequest) -> HttpResponse:
 
 
 
-@require_GET
-def search_activity(request):
-    query = request.GET.get('search_activity', '')
-    activities_list = [(activity, activities[activity]['name']) for activity in activities.keys()]
-    return render(request, 'main/activities/list.html', {'activities': activities_list})
 
 def get_activity_detail(request: WSGIRequest) -> HttpResponse:
 
     context = {
-        'activity': activities.get(request.GET.get('activity')),
+        'activity': Activity.objects.get(id=request.GET.get('activity'))
     }
 
     return render(request, 'main/activities/detail.html', context)

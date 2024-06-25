@@ -10,10 +10,10 @@
         <div class="left"></div>
         <div class="right">
             <div class="caption">Специализации:</div>
-            {% for specialization in activity.specializations %}
+            {% for specialization in activity.specialization.all %}
                 <div class="specialization_place">
-                    <input type="checkbox" id="specialization_{{ activity.id }}" name="specialization_{{ activity.id }}" value="{{ specialization.name }}" data-NotActiveCheckingActivities="1">
-                    <label for="specialization_{{ activity.id }}">{{ specialization.name }}</label>
+                    <input type="checkbox" id="specialization_{{ specialization.id }}" name="specialization_{{ activity.id }}" value="{{ specialization.id }}" data-NotActiveCheckingActivities="1">
+                    <label for="specialization_{{ specialization.id }}">{{ specialization.name }}</label>
                 </div>
             {% endfor %}
         </div>
