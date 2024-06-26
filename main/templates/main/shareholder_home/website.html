@@ -1,4 +1,17 @@
-<div class="form-group" data-block3-check-text="1">
+<div class="form-group">
     <div class="question">Имеется ли у компании веб-сайт?</div>
-    <input type="text" name="is_home_company_website" required placeholder="https://website.com">
+    
+    <div class="option">
+        <input type="radio" name="is_home_company_website" value="1" required="" aria-invalid="true">
+        Да
+        <div id="home-company-website-detail">
+            <input type="url" name="is_home_company_website_input" data-dynamic-placeholder="https://example.com">
+        </div>
+    </div>
+    
+    <div class="option">
+        <input type="radio" name="is_home_company_website" value="0" required="" aria-invalid="true">
+        Нет
+    </div>
+
 </div>
