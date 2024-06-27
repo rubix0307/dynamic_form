@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
-from main.models import Activity, Bank, Specialization
+from main.models import Activity, Bank, PlaceType, Specialization, PriceData as Price
 
 
 def get_payments(
@@ -232,7 +232,7 @@ class Payments:
     def __init__(self, payments: list[PriceDataView], cost_price_total):
         self.payments = payments
         self.is_start_value = any([p.is_start_value for p in payments])
-        self.price_total = sum(p.value for p in payments)
+        self.price_total = sum(p.value if p.value else float(p.total_value) for p in payments)
         self.cost_price_total = cost_price_total
 
 @dataclass
@@ -241,7 +241,7 @@ class UnavailableOption:
 
 
 class Solution:
-    def __init__(self, place_name: str, payments: Payments, unavailable: list[UnavailableOption] = None) -> None:
+    def __init__(self, place_name: str, payments: list[Price], unavailable: list[UnavailableOption] = None) -> None:
         self.place_name = place_name
         self.payments = payments
         self.unavailable = [u for u in unavailable if u] if unavailable else None
@@ -310,7 +310,7 @@ class PriceData:
         )
 
     def offshore(self) -> Solution:
-        activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=3, price=1000)
         bank_account_registration_service = self.calculate_bank_account_registration_service()
 
         # shareholder private
@@ -461,7 +461,7 @@ class PriceData:
         )
 
     def ifza(self) -> Solution:
-        activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=3, price=1000)
         bank_account_registration_service = self.calculate_bank_account_registration_service()
 
 
@@ -583,8 +583,11 @@ class PriceData:
         )
 
     def uaq(self) -> Solution:
+        place_type = PlaceType.objects.get(name='UAQ')
         custom_payments = []
-        activities_price_total, activities_cost_price_total = self.calculate_activities(free_count=3, price=1000)
+
+        specialization_price = Price.objects.get(name='specialization', place_type=place_type)
+        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=specialization_price.has_free_amount, price=specialization_price.value)
         bank_account_registration_service = self.calculate_bank_account_registration_service()
 
         visa_now_price_total = 0
@@ -592,60 +595,35 @@ class PriceData:
         visa_now_services = 0
 
         if self.data.visa_quotas == 1 and (self.data.office == 'no' or not self.data.office) and (self.data.bank_account == 'no' or not self.data.bank_account):
-            package_1 = PriceDataView(
-                description='Пакетное предложение 1',
-                values=[
-                    PriceDataView(description='License package', value=13900),
-                    PriceDataView(description='Establishment Card', value=0),
-                    PriceDataView(description='Выпуск визы',
-                                  values=[
-                                      PriceDataView(description='Emirates ID', value=400),
-                                      PriceDataView(description='Medical', value=400),
-                                  ])
-                ]
-            )
+            package_1 = Price.objects.get_package_with_children(pk=1)
             custom_payments.append(package_1)
 
         else:
-            package_2 = PriceDataView(
-                description='Пакетное предложение 2',
-                values=[
-                    PriceDataView(description='Registration fee', value=2000),
-                    PriceDataView(description='License fee', value=2500),
-                    PriceDataView(description='Office cost', value=21800),
-                    PriceDataView(description='Deposit for Office (refundable) ', value=2180),
-                    PriceDataView(description='Establishment Card', value=0),
-                ]
-            )
+            package_2 = Price.objects.get_package_with_children(pk=7)
             custom_payments.append(package_2)
 
             if self.data.visa_quotas_now:
-                visa_charge = PriceDataView(
-                    description='Visa charges',
-                    values=[
-                        PriceDataView(description='Visa Charges (Investor / Employee — 2 years validity)', value=2500),
-                        PriceDataView(description='Medical & Emirates ID', value=800),
-                    ]
-                )
-                visa_professional_services = 4750
-                visa_now_price_total = (visa_charge.value * self.data.visa_quotas_now) * 1.05
-                visa_now_services = (visa_professional_services * self.data.visa_quotas_now) * 1.05
+                visa_charge = Price.objects.get_package_with_children(pk=13)
+
+                visa_now_professional_services = Price.objects.get(name='visa_now_professional_services', place_type=place_type)
+                visa_now_fee_percentage = Price.objects.get(name='visa_now_fee_percentage', place_type=place_type)
+                visa_now_price_total = (float(visa_charge.get_total_value()) * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.value/100)
+                visa_now_services = (visa_now_professional_services.value * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.value/100)
 
 
-        private_shareholders_price_total = 0
-        max_private_shareholders_count = 4
-        if self.data.private_shareholders_count > max_private_shareholders_count:
+        private_shareholders_price_total = 0 # TODO
+        max_private_shareholders_count = Price.objects.get(name='max_private_shareholders_count', place_type=place_type)
+        if self.data.private_shareholders_count > max_private_shareholders_count.value:
             return None
 
         # legal_shareholder
-        legal_shareholder_price = 2000
-        legal_shareholders_price_total = legal_shareholder_price * self.data.legal_shareholders_count
+        legal_shareholder_price = Price.objects.get(name='legal_shareholder', place_type=place_type)
+        legal_shareholders_price_total = legal_shareholder_price.value * self.data.legal_shareholders_count
         legal_shareholders_price_total_start_value = True
 
 
-
         # professional services
-        registration_service = 6600
+        registration_service = Price.objects.get(name='registration_service', place_type=place_type)
 
         cost_price_total = sum([
             activities_cost_price_total,
@@ -660,7 +638,7 @@ class PriceData:
             private_shareholders_price_total=private_shareholders_price_total,
             legal_shareholders_price_total=legal_shareholders_price_total,
             legal_shareholders_price_total_start_value=legal_shareholders_price_total_start_value,
-            registration_service=registration_service,
+            registration_service=registration_service.value,
         )
         payments_data = Payments(
             payments=payments,
@@ -668,13 +646,13 @@ class PriceData:
         )
         unavailable = []
         return Solution(
-            place_name='UAQ',
+            place_name=place_type.name,
             payments=payments_data,
             unavailable=unavailable,
         )
 
 
-    def calculate_activities(self, free_count, price):
+    def calculate_specializations(self, free_count, price):
         specializations_count = len(sum([a.specializations for a in self.data.activities], []))
 
         price_total = 0
