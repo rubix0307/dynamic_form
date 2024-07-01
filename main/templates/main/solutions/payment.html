@@ -8,7 +8,7 @@
     </div>
 </div>
 
-{% if payment.values.count %}
+{% if payment.values|length %}
     {% if payment.values_list %}
         {% include 'main/solutions/payments.html' with payments=payment.values_list total_hidden=1 %}
     {% else %}
