@@ -46,24 +46,35 @@ def get_payments(
             value=specialization_price,
             is_start_value=specialization_start_price,
         ))
-    if visa_quotas_price:
-        payments.append(PriceDataView(
-            name='Визовые квоты',
-            value=visa_quotas_price,
-            is_start_value=visa_quotas_start_price,
-        ))
-    if visa_now_price:
-        payments.append(PriceDataView(
-            name='Выпуск виз',
-            value=visa_now_price,
-            is_start_value=visa_now_start_price,
-        ))
-    if visa_now_services_price:
-        payments.append(PriceDataView(
-            name='Услуга по выпуску виз',
-            value=visa_now_services_price,
-            is_start_value=visa_now_services_start_value,
-        ))
+
+
+    if any([visa_quotas_price, visa_now_price, visa_now_services_price]):
+        visa_payments = []
+        if visa_quotas_price:
+            visa_payments.append(PriceDataView(
+                name='Визовые квоты',
+                value=visa_quotas_price,
+                is_start_value=visa_quotas_start_price,
+            ))
+        if visa_now_price:
+            visa_payments.append(PriceDataView(
+                name='Выпуск виз',
+                value=visa_now_price,
+                is_start_value=visa_now_start_price,
+            ))
+        if visa_now_services_price:
+            visa_payments.append(PriceDataView(
+                name='Услуга по выпуску виз',
+                value=visa_now_services_price,
+                is_start_value=visa_now_services_start_value,
+            ))
+
+        payments.append(
+            PriceDataView(
+                name='Визы',
+                values=visa_payments,
+            )
+        )
     if private_shareholders_price:
         payments.append(PriceDataView(
             name='Регистрация всех акционеров физ. лиц',
