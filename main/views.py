@@ -270,10 +270,9 @@ class UnavailableOption:
 
 
 class Solution:
-    def __init__(self, place_type: str, payments: list[Price], unavailable: list[UnavailableOption] = None) -> None:
+    def __init__(self, place_type: str, payments: list[Price]) -> None:
         self.place_type: PlaceType = place_type
         self.payments = payments
-        self.unavailable = [u for u in unavailable if u] if unavailable else None
 
 
 class PriceData:
@@ -294,7 +293,7 @@ class PriceData:
         #         solutions.append(self.uaq())
         # else:
         solutions.append(self.offshore())
-        # solutions.append(self.mainland())
+        solutions.append(self.mainland())
         solutions.append(self.ifza())
         solutions.append(self.uaq())
 
@@ -373,10 +372,6 @@ class PriceData:
             professional_service=professional_service,
         )
 
-        unavailable = [
-            UnavailableOption(name='Выпуск виз') if self.data.visa_quotas or self.data.visa_quotas_now else None,
-        ]
-
         payments_data = Payments(
             payments=payments,
         )
@@ -384,91 +379,64 @@ class PriceData:
         return Solution(
             place_type=place_type,
             payments=payments_data,
-            unavailable=unavailable,
         )
 
     def mainland(self) -> Solution:
+        place_type = PlaceType.objects.get(name='Mainland')
+
         activities_count = len(self.data.activities)
         specializations_count = len(sum([a.specializations for a in self.data.activities], []))
-        free_specializations_count = 10
-        activity_cost_price = 20000
-        activities_price_total = activity_cost_price
+
+        specialization = Price.objects.get(name='specialization', place_type=place_type)
+        specialization_price = specialization.price
 
         need_companies = False
         if activities_count > 1:
             need_companies = True # TODO calculate other companies
 
-        if specializations_count > free_specializations_count:
+        if specializations_count > specialization.has_free_quantity or 0:
             pass # TODO think about it
 
-        bank_account_registration_service = self.calculate_bank_account_registration_service()
+        bank_account_registration_service_price = self.calculate_bank_account_registration_service()
 
         # visa now
-        visa_cost_price = 5200 * 1.05
-        visa_professional_services = 5500
-        visa_now_cost_price_total = visa_cost_price * self.data.visa_quotas_now
-        visa_now_price_total = visa_cost_price * self.data.visa_quotas_now
-        visa_now_services = visa_professional_services * self.data.visa_quotas_now
+        visa_issue = Price.objects.get(name='visa_issue', place_type=place_type)
+        visa_professional_services = Price.objects.get(name='visa_professional_services', place_type=place_type)
+        visa_now_services_price = visa_professional_services.price * self.data.visa_quotas_now
+        visa_now_price = visa_issue.price * self.data.visa_quotas_now * (1 + (visa_issue.extra_fee or 0)/100)
+        visa_now_cost_price_total = visa_issue.cost_price * self.data.visa_quotas_now * (1 + (visa_issue.extra_fee or 0)/100)
 
-        office_cost_price = 0
-        office_price_total = 0
-        office_search_service = 0
-        office_price_start_value = False
-        if self.data.office == 'real':
-            office_cost_price = 25000
-            office_price_total = office_cost_price
-            office_price_start_value = True
-            office_search_service = 4000
+        office = None
+        office_search_service = None
+        if self.data.office == 'real': # TODO duplicate code
+            office = Price.objects.get(name='office_real', place_type=place_type)
+            office_search_service = Price.objects.get(parent=office,name='office_search_service')
 
         elif self.data.office == 'minimal':
-            office_cost_price = 10000
-            office_price_total = office_cost_price
-            office_search_service = 0
+            office = Price.objects.get(name='office_minimal', place_type=place_type)
+            office_search_service = Price.objects.get(parent=office,name='office_search_service')
 
         # professional services
-        registration_service = 8000
+        professional_service = Price.objects.get(name='professional_service', place_type=place_type)
 
-        cost_price_total = sum([
-            activity_cost_price,
-            visa_now_cost_price_total,
-            office_cost_price,
-
-        ])
-        price_total = sum([
-            activities_price_total,
-            visa_now_price_total,
-            visa_now_services,
-            office_price_total,
-            office_search_service,
-            bank_account_registration_service,
-            registration_service,
-        ])
         payments = get_payments(
-            activities_price_total=activities_price_total,
-            activities_price_total_start_value=True,
-            visa_now_price_total=visa_now_price_total,
-            visa_now_price_total_start_value=True,
-            visa_now_services=visa_now_services,
-            office_price_total=office_price_total,
-            office_price_start_value=office_price_start_value,
+            visa_now_price=visa_now_price,
+            visa_now_start_price=visa_issue.is_start_value,
+            visa_now_services_price=visa_now_services_price,
+
+            specialization_price=specialization_price,
+            bank_account_registration_service_price=bank_account_registration_service_price,
+            office=office,
             office_search_service=office_search_service,
-            bank_account_registration_service=bank_account_registration_service,
-            registration_service=registration_service,
+            professional_service=professional_service,
         )
-
-        unavailable = [
-            UnavailableOption(name='Несколько видов деятельности') if activities_count > 1 else None,
-        ]
-
 
         payments_data = Payments(
             payments=payments,
-            cost_price_total=cost_price_total,
         )
         return Solution(
-            place_name='Мейнленд',
+            place_type=place_type,
             payments=payments_data,
-            unavailable=unavailable,
         )
 
     def ifza(self) -> Solution:
@@ -547,7 +515,6 @@ class PriceData:
             office_search_service=office_search_service,
             professional_service=professional_service,
         )
-        unavailable = []
 
         payments_data = Payments(
             payments=payments,
@@ -555,7 +522,6 @@ class PriceData:
         return Solution(
             place_type=place_type,
             payments=payments_data,
-            unavailable=unavailable,
         )
 
     def uaq(self) -> Solution:
@@ -621,11 +587,9 @@ class PriceData:
         payments_data = Payments(
             payments=payments,
         )
-        unavailable = []
         return Solution(
             place_type=place_type,
             payments=payments_data,
-            unavailable=unavailable,
         )
 
 
