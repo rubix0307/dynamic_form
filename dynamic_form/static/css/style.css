@@ -49,40 +49,48 @@ input {
 }
 
 
-
-
 .solutions {
-  position: absolute;
-  top: 50px;
-  left: 50px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50svh;
 
+  & .solution {
 
-  .payments {
-    .payment {
-      border-bottom: 1px solid #0088cc;
-      padding-bottom: 2px;
-      width: 100%;
-      /* background-color: red; */
-      display: flex;
-      justify-content: space-between;
-
-      .value {
-        margin-left: 45px;
-        display: flex;
-        justify-content: space-around;
-      }
+    margin-bottom: 20px;
+    & .payments .payments {
+      margin: 0 5px 10px 5px;
+      border-left: 3px solid var(--tg-theme-button-color);
+      border-right: 3px solid var(--tg-theme-button-color);
+      padding:0 5px;
     }
-  }
-  .price_total {
-    text-align: right;
-    display: flex;
-    justify-content: space-between;
 
-    .value {
+    & .payment {
       display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--tg-theme-button-color);
+      &:last-child {
+        border-bottom: none;
+      }
+      &.total {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      & .row {
+        display: flex;
+        justify-content: space-between;
+      }
+      & .total {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: nowrap;
+        }
     }
   }
 }
+
+
 .decimal {
   font-size: 80%;
 }

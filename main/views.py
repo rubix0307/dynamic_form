@@ -5,7 +5,7 @@ from urllib.parse import parse_qs
 
 import django.db.models
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet
+from django.db.models import Max, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
@@ -14,104 +14,103 @@ from main.models import Activity, Bank, PlaceType, Specialization, PriceData as 
 
 
 def get_payments(
+        office: Price =None,
+        office_search_service: Price =None,
+        professional_service: Price =None,
         custom_payments=None,
-        activities_price_total=None,
-        activities_price_total_start_value=None,
-        visa_quotas_price_total=None,
-        visa_quotas_price_total_start_value=None,
-        visa_now_price_total=None,
-        visa_now_price_total_start_value=None,
-        visa_now_services=None,
+
+        specialization_price=None,
+        specialization_start_price=None,
+        visa_quotas_price=None,
+        visa_quotas_start_price=None,
+        visa_now_price=None,
+        visa_now_start_price=None,
+        visa_now_services_price=None,
         visa_now_services_start_value=None,
-        private_shareholders_price_total=None,
-        private_shareholders_price_total_start_value=None,
-        legal_shareholders_price_total=None,
-        legal_shareholders_price_total_start_value=None,
-        bank_account_registration_service=None,
-        bank_account_registration_service_start_value=None,
-        office_price_total=None,
-        office_price_start_value=None,
-        office_search_service=None,
-        office_search_service_start_value=None,
-        company_registration=None,
-        company_registration_start_value=None,
-        registration_service=None,
-        registration_service_start_value=None
+        private_shareholders_price=None,
+        private_shareholders_start_price=None,
+        legal_shareholders_price=None,
+        legal_shareholders_start_price=None,
+        bank_account_registration_service_price=None,
+        bank_account_registration_service_start_price=None,
+        company_registration_price=None,
+        company_registration_start_price=None,
+
     ):
 
     payments = []
 
-    if activities_price_total:
+    if specialization_price:
         payments.append(PriceDataView(
-            description='Регистрация видов деятельности',
-            value=activities_price_total,
-            is_start_value=activities_price_total_start_value,
+            name='Регистрация специализаций',
+            value=specialization_price,
+            is_start_value=specialization_start_price,
         ))
-    if visa_quotas_price_total:
+    if visa_quotas_price:
         payments.append(PriceDataView(
-            description='Визовые квоты',
-            value=visa_quotas_price_total,
-            is_start_value=visa_quotas_price_total_start_value,
+            name='Визовые квоты',
+            value=visa_quotas_price,
+            is_start_value=visa_quotas_start_price,
         ))
-    if visa_now_price_total:
+    if visa_now_price:
         payments.append(PriceDataView(
-            description='Выпуск виз',
-            value=visa_now_price_total,
-            is_start_value=visa_now_price_total_start_value,
+            name='Выпуск виз',
+            value=visa_now_price,
+            is_start_value=visa_now_start_price,
         ))
-    if visa_now_services:
+    if visa_now_services_price:
         payments.append(PriceDataView(
-            description='Услуга по выпуску виз',
-            value=visa_now_services,
+            name='Услуга по выпуску виз',
+            value=visa_now_services_price,
             is_start_value=visa_now_services_start_value,
         ))
-    if private_shareholders_price_total:
+    if private_shareholders_price:
         payments.append(PriceDataView(
-            description='Регистрация всех акционеров физ. лиц',
-            value=private_shareholders_price_total,
-            is_start_value=private_shareholders_price_total_start_value,
+            name='Регистрация всех акционеров физ. лиц',
+            value=private_shareholders_price,
+            is_start_value=private_shareholders_start_price,
         ))
-    if legal_shareholders_price_total:
+    if legal_shareholders_price:
         payments.append(PriceDataView(
-            description='Регистрация всех акционеров юр. лиц',
-            value=legal_shareholders_price_total,
-            is_start_value=legal_shareholders_price_total_start_value,
+            name='Регистрация всех акционеров юр. лиц',
+            value=legal_shareholders_price,
+            is_start_value=legal_shareholders_start_price,
         ))
-    if bank_account_registration_service:
+    if bank_account_registration_service_price:
         payments.append(PriceDataView(
-            description='Регистрация корпоративного счёта',
-            value=bank_account_registration_service,
-            is_start_value=bank_account_registration_service_start_value,
+            name='Регистрация корпоративного счёта',
+            value=bank_account_registration_service_price,
+            is_start_value=bank_account_registration_service_start_price,
         ))
-    if office_price_total:
+    if office:
         payments.append(PriceDataView(
-            description='Аренда офиса',
-            value=office_price_total,
-            is_start_value=office_price_start_value,
+            name='Аренда офиса',
+            value=office.price,
+            is_start_value=office.is_start_value,
         ))
     if office_search_service:
         payments.append(PriceDataView(
-            description='Услуга по подбору офиса',
-            value=office_search_service,
-            is_start_value=office_search_service_start_value,
+            name='Услуга по подбору офиса',
+            value=office_search_service.price,
+            is_start_value=office_search_service.is_start_value,
         ))
 
-    if company_registration:
+    if company_registration_price:
         payments.append(PriceDataView(
-            description='Регистрация компании',
-            value=company_registration,
-            is_start_value=company_registration_start_value,
+            name='Регистрация компании',
+            value=company_registration_price,
+            is_start_value=company_registration_start_price,
         ))
 
     if custom_payments:
         payments += custom_payments
 
 
-    if registration_service:
+    if professional_service:
         payments.append(PriceDataView(
-            description='Профессиональные услуги',
-            value=registration_service,
-            is_start_value=registration_service_start_value,
+            name='Профессиональные услуги',
+            value=professional_service.price,
+            is_start_value=professional_service.is_start_value,
         ))
 
     return payments
@@ -215,24 +214,24 @@ class PriceDataValueView:
 class PriceDataView:
 
     def __init__(self,
-                 description:str,
+                 name:str,
                  value = None,
-                 values: list[PriceDataValueView] = None,
+                 values: list[PriceDataValueView]|QuerySet = None,
                  is_start_value: bool= False
                 ) -> None:
-        self.description=description
+        self.name=name
         self.value=value
         self.values=values
         self.is_start_value=is_start_value
 
         if values:
-            self.value=sum([v.value for v in values])
+            self.value=sum([v.value or 0 if 'value' in v.__dir__() else v.price or 0 for v in values])
 
 class Payments:
-    def __init__(self, payments: list[PriceDataView], cost_price_total):
+    def __init__(self, payments: list[PriceDataView], cost_price_total=None):
         self.payments = payments
         self.is_start_value = any([p.is_start_value for p in payments])
-        self.price_total = sum(p.value if p.value else float(p.total_value) for p in payments)
+        self.price_total = sum(float(p.value) if p.value else float(p.total_price) for p in payments)
         self.cost_price_total = cost_price_total
 
 @dataclass
@@ -241,8 +240,8 @@ class UnavailableOption:
 
 
 class Solution:
-    def __init__(self, place_name: str, payments: list[Price], unavailable: list[UnavailableOption] = None) -> None:
-        self.place_name = place_name
+    def __init__(self, place_type: str, payments: list[Price], unavailable: list[UnavailableOption] = None) -> None:
+        self.place_type: PlaceType = place_type
         self.payments = payments
         self.unavailable = [u for u in unavailable if u] if unavailable else None
 
@@ -255,24 +254,25 @@ class PriceData:
     def get_solutions(self):
         solutions = []
         other_payments = self.other_payments()
+        solutions.append(self.ifza())
+        solutions.append(self.uaq())
 
-        if self.data.uae_business_area:
-            if self.data.uae_business_full_area:
-                solutions.append(self.mainland())
-            else:
-                solutions.append(self.mainland())
-                solutions.append(self.ifza())
-                solutions.append(self.uaq())
-        else:
-            solutions.append(self.offshore())
-            solutions.append(self.mainland())
-            solutions.append(self.ifza())
-            solutions.append(self.uaq())
-
+        # if self.data.uae_business_area:
+        #     if self.data.uae_business_full_area:
+        #         solutions.append(self.mainland())
+        #     else:
+        #         solutions.append(self.mainland())
+        #         solutions.append(self.ifza())
+        #         solutions.append(self.uaq())
+        # else:
+        #     solutions.append(self.offshore())
+        #     solutions.append(self.mainland())
+        #     solutions.append(self.ifza())
+        #     solutions.append(self.uaq())
+        #
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
             solution.payments.price_total += other_payments.payments.price_total
-
         return solutions
 
 
@@ -285,10 +285,10 @@ class PriceData:
         if self.data.contract_of_residence == 'minimal':
             payments.append(
                 PriceDataView(
-                    description='Контракт на проживание',
+                    name='Контракт на проживание',
                     values=[
-                        PriceDataView(description='Tenancy contract', value=18300),
-                        PriceDataView(description='DEWA Registration', value=2200),
+                        PriceDataView(name='Tenancy contract', value=18300),
+                        PriceDataView(name='DEWA Registration', value=2200),
                     ]
             ))
 
@@ -297,12 +297,12 @@ class PriceData:
 
             payments.append(
                 PriceDataView(
-                    description=description,
+                    name=description,
                     value=value,
                 ))
 
         return Solution(
-            place_name='Другие платежи',
+            place_type=PlaceType(name='Другие платежи'),
             payments=Payments(
                 payments=payments,
                 cost_price_total=None
@@ -461,123 +461,88 @@ class PriceData:
         )
 
     def ifza(self) -> Solution:
-        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=3, price=1000)
-        bank_account_registration_service = self.calculate_bank_account_registration_service()
+        place_type = PlaceType.objects.get(name='IFZA')
 
+        specialization = Price.objects.get(name='specialization', place_type=place_type)
+        specialization_price, specialization_cost_price = self.calculate_specializations(free_count=specialization.has_free_quantity, price=specialization.price)
+        bank_account_registration_service_price = self.calculate_bank_account_registration_service()
 
         # visa quotas
-        establishment_card_cost_price = 2000
-        establishment_card_price_total = establishment_card_cost_price
+        establishment_card = Price.objects.get(name='establishment_card', place_type=place_type)
 
         quotas_count = self.data.visa_quotas
-        quotas_data = {
-            0: {'price': 12900, 'cost_price': 10300},
-            1: {'price': 14900, 'cost_price': 11900},
-            2: {'price': 16900, 'cost_price': 13500},
-            3: {'price': 18900, 'cost_price': 15100},
-            4: {'price': 20900, 'cost_price': 16700},
-        }
-        max_key = max(quotas_data.keys())
-        if quotas_count > max_key:
-            quotas_count = max_key
+        quotas_data = Price.objects.get(name='quotas_data', place_type=place_type)
+        max_quantity = Price.objects.filter(parent=quotas_data).aggregate(Max('quantity'))['quantity__max']
 
-        visa_quotas_price_total = quotas_data[quotas_count]['price'] +  establishment_card_price_total
-        visa_quotas_cost_price_total = quotas_data[quotas_count]['cost_price'] + establishment_card_cost_price
+        if quotas_count > max_quantity:
+            quotas_count = max_quantity
 
+        quotas_price = Price.objects.get(parent=quotas_data, quantity=quotas_count)
+        visa_quotas_price = quotas_price.price + establishment_card.price
+        visa_quotas_cost_price = quotas_price.cost_price + establishment_card.cost_price
 
         # visa now
-        visa_professional_services = 4750
-        residence_visa_fee = 3750
-        residence_id_price = 500
-        residence_medial_price = 500
+        visa_professional_services = Price.objects.get(name='visa_professional_services', place_type=place_type)
+        residence_visa_fee = Price.objects.get(name='residence_visa_fee', place_type=place_type)
+        residence_id = Price.objects.get(name='residence_id', place_type=place_type)
+        residence_medial = Price.objects.get(name='residence_medial', place_type=place_type)
 
-        visa_now_cost_price_total = (residence_visa_fee + residence_id_price + residence_medial_price) * self.data.visa_quotas_now
-        visa_now_price_total = visa_now_cost_price_total
-        visa_now_services = visa_professional_services * self.data.visa_quotas_now
+        visa_now_services_price = visa_professional_services.price * self.data.visa_quotas_now
+        visa_now_price = (residence_visa_fee.price + residence_id.price + residence_medial.price) * self.data.visa_quotas_now
+        visa_now_cost_price = (residence_visa_fee.cost_price + residence_id.cost_price + residence_medial.cost_price) * self.data.visa_quotas_now
 
         # private_shareholder
-        free_private_shareholder_count = 3
-        private_shareholder_price = 350
-
-        private_shareholders_price_total = 0
-        if self.data.private_shareholders_count > free_private_shareholder_count:
-            private_shareholders_price_total = (self.data.private_shareholders_count - free_private_shareholder_count) * private_shareholder_price
-        private_shareholder_cost_price_total = private_shareholders_price_total
-
+        private_shareholder = Price.objects.get(name='private_shareholder', place_type=place_type)
+        private_shareholders_price = 0
+        private_shareholder_cost_price = 0
+        if self.data.private_shareholders_count > private_shareholder.has_free_quantity:
+            private_shareholders_price = (self.data.private_shareholders_count - private_shareholder.has_free_quantity) * private_shareholder.price
+            private_shareholder_cost_price = (self.data.private_shareholders_count - private_shareholder.has_free_quantity) * private_shareholder.cost_price
 
         # legal_shareholder
-        legal_shareholder_price = 2000
-        legal_shareholders_price_total = legal_shareholder_price * self.data.legal_shareholders_count
-        legal_shareholders_cost_price_total = legal_shareholders_price_total
+        legal_shareholder = Price.objects.get(name='legal_shareholder', place_type=place_type)
+        legal_shareholders_price = 0
+        legal_shareholders_cost_price = 0
+        if self.data.legal_shareholders_count > legal_shareholder.has_free_quantity:
+            legal_shareholders_price = (self.data.legal_shareholders_count - legal_shareholder.has_free_quantity) * legal_shareholder.price
+            legal_shareholders_cost_price = (self.data.legal_shareholders_count - legal_shareholder.has_free_quantity) * legal_shareholder.cost_price
 
 
-        office_cost_price = 0
-        office_price_total = 0
-        office_search_service = 0
-        office_price_start_value = False
+        office = Price()
+        office_search_service = Price()
 
         if self.data.office == 'real':
-            office_cost_price = 25000
-            office_price_total = office_cost_price
-            office_price_start_value = True
-            office_search_service = 3000
+            office = Price.objects.get(name='office_real', place_type=place_type)
+            office_search_service = Price.objects.get(parent=office, name='office_search_service')
 
         elif self.data.office == 'minimal':
-            office_cost_price = 13900
-            office_price_total = office_cost_price
-            office_search_service = 0
+            office = Price.objects.get(name='office_minimal', place_type=place_type)
+            office_search_service = Price.objects.get(parent=office,name='office_search_service')
 
 
         # professional services
-        registration_service = 6600
+        professional_service = Price.objects.get(name='registration_service', place_type=place_type)
 
-
-
-
-        cost_price_total = sum([
-            activities_cost_price_total,
-            visa_quotas_cost_price_total,
-            visa_now_cost_price_total,
-            private_shareholder_cost_price_total,
-            legal_shareholders_cost_price_total,
-            office_cost_price,
-            establishment_card_cost_price,
-        ])
-        price_total = sum([
-            activities_price_total,
-            visa_quotas_price_total,
-            visa_now_price_total,
-            private_shareholders_price_total,
-            legal_shareholders_price_total,
-            office_price_total,
-            visa_now_services,
-            bank_account_registration_service,
-            office_search_service,
-            registration_service,
-            establishment_card_price_total,
-        ])
 
         payments = get_payments(
-            activities_price_total=activities_price_total,
-            visa_quotas_price_total=visa_quotas_price_total,
-            visa_now_price_total=visa_now_price_total,
-            visa_now_services=visa_now_services,
-            private_shareholders_price_total=private_shareholders_price_total,
-            legal_shareholders_price_total=legal_shareholders_price_total,
-            bank_account_registration_service=bank_account_registration_service,
-            office_price_total=office_price_total,
-            office_price_start_value=office_price_start_value,
+            specialization_price=specialization_price,
+            visa_quotas_price=visa_quotas_price,
+            visa_now_price=visa_now_price,
+            visa_now_services_price=visa_now_services_price,
+            private_shareholders_price=private_shareholders_price,
+            legal_shareholders_price=legal_shareholders_price,
+            bank_account_registration_service_price=bank_account_registration_service_price,
+            office=office,
             office_search_service=office_search_service,
-            registration_service=registration_service,
+            professional_service=professional_service,
         )
         unavailable = []
 
         payments_data = Payments(
             payments=payments,
-            cost_price_total=cost_price_total,
         )
         return Solution(
-            place_name='IFZA',
+            place_type=place_type,
             payments=payments_data,
             unavailable=unavailable,
         )
@@ -586,67 +551,68 @@ class PriceData:
         place_type = PlaceType.objects.get(name='UAQ')
         custom_payments = []
 
-        specialization_price = Price.objects.get(name='specialization', place_type=place_type)
-        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=specialization_price.has_free_amount, price=specialization_price.value)
-        bank_account_registration_service = self.calculate_bank_account_registration_service()
+        specialization = Price.objects.get(name='specialization', place_type=place_type)
+        specialization_price, specialization_cost_price = self.calculate_specializations(free_count=specialization.has_free_quantity, price=specialization.price)
+        bank_account_registration_service_price = self.calculate_bank_account_registration_service()
 
-        visa_now_price_total = 0
-        visa_now_cost_price_total = 0
-        visa_now_services = 0
+        visa_now_price = 0
+        visa_now_services_price = 0
 
         if self.data.visa_quotas == 1 and (self.data.office == 'no' or not self.data.office) and (self.data.bank_account == 'no' or not self.data.bank_account):
             package_1 = Price.objects.get_package_with_children(pk=1)
-            custom_payments.append(package_1)
+
+            custom_payments.append(PriceDataView(
+                name=package_1.name,
+                value=package_1.values_list,
+                is_start_value=package_1.is_start_value,
+            ))
 
         else:
             package_2 = Price.objects.get_package_with_children(pk=7)
-            custom_payments.append(package_2)
+            custom_payments.append(PriceDataView(
+                name=package_2.name,
+                values=package_2.values_list,
+                is_start_value=package_2.is_start_value,
+            ))
 
             if self.data.visa_quotas_now:
                 visa_charge = Price.objects.get_package_with_children(pk=13)
-
                 visa_now_professional_services = Price.objects.get(name='visa_now_professional_services', place_type=place_type)
                 visa_now_fee_percentage = Price.objects.get(name='visa_now_fee_percentage', place_type=place_type)
-                visa_now_price_total = (float(visa_charge.get_total_value()) * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.value/100)
-                visa_now_services = (visa_now_professional_services.value * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.value/100)
+                visa_now_price = (visa_charge.get_total_price() * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.quantity/100)
+                visa_now_services_price = (visa_now_professional_services.price * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.quantity/100)
 
 
-        private_shareholders_price_total = 0 # TODO
+        private_shareholders_price = 0 # TODO
         max_private_shareholders_count = Price.objects.get(name='max_private_shareholders_count', place_type=place_type)
-        if self.data.private_shareholders_count > max_private_shareholders_count.value:
+        if self.data.private_shareholders_count > max_private_shareholders_count.quantity:
             return None
 
         # legal_shareholder
-        legal_shareholder_price = Price.objects.get(name='legal_shareholder', place_type=place_type)
-        legal_shareholders_price_total = legal_shareholder_price.value * self.data.legal_shareholders_count
-        legal_shareholders_price_total_start_value = True
-
+        legal_shareholder = Price.objects.get(name='legal_shareholder', place_type=place_type)
+        legal_shareholders_price = legal_shareholder.price * self.data.legal_shareholders_count
+        legal_shareholders_start_price = legal_shareholder.is_start_value
 
         # professional services
         registration_service = Price.objects.get(name='registration_service', place_type=place_type)
 
-        cost_price_total = sum([
-            activities_cost_price_total,
-            visa_now_cost_price_total,
-        ])
-
-        payments = get_payments(custom_payments=custom_payments,
-            activities_price_total=activities_price_total,
-            visa_now_price_total=visa_now_price_total,
-            visa_now_services=visa_now_services,
-            bank_account_registration_service=bank_account_registration_service,
-            private_shareholders_price_total=private_shareholders_price_total,
-            legal_shareholders_price_total=legal_shareholders_price_total,
-            legal_shareholders_price_total_start_value=legal_shareholders_price_total_start_value,
-            registration_service=registration_service.value,
+        payments = get_payments(
+            custom_payments=custom_payments,
+            specialization_price=specialization_price,
+            visa_now_price=visa_now_price,
+            visa_now_services_price=visa_now_services_price,
+            bank_account_registration_service_price=bank_account_registration_service_price,
+            private_shareholders_price=private_shareholders_price,
+            legal_shareholders_price=legal_shareholders_price,
+            legal_shareholders_start_price=legal_shareholders_start_price,
+            professional_service=registration_service,
         )
         payments_data = Payments(
             payments=payments,
-            cost_price_total=cost_price_total,
         )
         unavailable = []
         return Solution(
-            place_name=place_type.name,
+            place_type=place_type,
             payments=payments_data,
             unavailable=unavailable,
         )
@@ -708,7 +674,7 @@ def get_solutions(request: WSGIRequest) -> HttpResponse:
         data = FormData(request)
         price_data = PriceData(data)
         solutions = price_data.get_solutions()
-        return render(request, 'main/solutions.html', context={'solutions': solutions})
+        return render(request, 'main/solutions/index.html', context={'solutions': solutions})
 
 @require_POST
 def get_form(request: WSGIRequest) -> HttpResponse:

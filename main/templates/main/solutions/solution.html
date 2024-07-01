@@ -1,0 +1,6 @@
+<div class="solution">
+    <div class="caption">{{ solution.place_type.name }}</div>
+    {% with solution.payments.payments as payments %}
+    	{% include 'main/solutions/payments.html' %}
+    {% endwith %}
+</div>

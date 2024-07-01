@@ -1,0 +1,16 @@
+<div class="payments">
+    {% for payment in payments %}
+        {% include 'main/solutions/payment.html' %}
+    {% endfor %}
+
+    {% if not total_hidden %}
+    	<div class="payment total">
+            <div class="description">Всего</div>
+            <div class="total">
+                {% if solution.payments.is_start_value %}<div style="margin-right: 5px;">от</div>{% endif %}
+                <div data-price="{{ solution.payments.price_total|floatformat:2 }}"></div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
