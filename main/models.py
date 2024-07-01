@@ -55,6 +55,7 @@ class PriceData(models.Model):
     parent = models.ForeignKey('self', related_name='values', on_delete=models.CASCADE, null=True, blank=True)
     place_type = models.ForeignKey(PlaceType, on_delete=models.CASCADE)
     has_free_quantity = models.IntegerField(null=True, blank=True)
+    extra_fee = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     objects = PriceDataManager()
 

@@ -1,14 +1,12 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Literal
 from urllib.parse import parse_qs
 
-import django.db.models
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Max, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 
 from main.models import Activity, Bank, PlaceType, Specialization, PriceData as Price
 
@@ -236,7 +234,28 @@ class PriceDataView:
         self.is_start_value=is_start_value
 
         if values:
-            self.value=sum([v.value or 0 if 'value' in v.__dir__() else v.price or 0 for v in values])
+
+            if type(values) is QuerySet:
+                self.normalize_values(values)
+
+            self.value=sum([v.value or 0 if 'value' in v.__dir__() else v.price or 0 for v in self.values])
+            self.is_start_value = any([v.is_start_value for v in self.values]+[is_start_value])
+
+
+    def normalize_values(self, values):
+        new_values = []
+        for value in values:
+
+            new_values.append(PriceDataView(
+                name=value.name,
+                value=value.price,
+                values=self.normalize_values(value.values_list),
+                is_start_value=value.is_start_value,
+            ))
+
+        self.values = new_values
+        self.is_start_value = any(v.is_start_value for v in self.values)
+        return new_values
 
 class Payments:
     def __init__(self, payments: list[PriceDataView], cost_price_total=None):
@@ -265,22 +284,20 @@ class PriceData:
     def get_solutions(self):
         solutions = []
         other_payments = self.other_payments()
-        solutions.append(self.ifza())
-        solutions.append(self.uaq())
 
-        # if self.data.uae_business_area:
-        #     if self.data.uae_business_full_area:
-        #         solutions.append(self.mainland())
-        #     else:
-        #         solutions.append(self.mainland())
-        #         solutions.append(self.ifza())
-        #         solutions.append(self.uaq())
-        # else:
-        #     solutions.append(self.offshore())
-        #     solutions.append(self.mainland())
-        #     solutions.append(self.ifza())
-        #     solutions.append(self.uaq())
-        #
+        if self.data.uae_business_area:
+            if self.data.uae_business_full_area:
+                solutions.append(self.mainland())
+            else:
+                solutions.append(self.mainland())
+                solutions.append(self.ifza())
+                solutions.append(self.uaq())
+        else:
+            solutions.append(self.offshore())
+            solutions.append(self.mainland())
+            solutions.append(self.ifza())
+            solutions.append(self.uaq())
+
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
             solution.payments.price_total += other_payments.payments.price_total
@@ -321,54 +338,39 @@ class PriceData:
         )
 
     def offshore(self) -> Solution:
-        activities_price_total, activities_cost_price_total = self.calculate_specializations(free_count=3, price=1000)
-        bank_account_registration_service = self.calculate_bank_account_registration_service()
+        place_type = PlaceType.objects.get(name='Offshore')
+        custom_payments = []
 
-        # shareholder private
-        private_shareholders_count = self.data.private_shareholders_count
-        free_private_shareholders_count = 3
-        private_shareholder_price = 275
+        specialization = Price.objects.get(name='specialization', place_type=place_type)
+        specialization_price, specialization_cost_price = self.calculate_specializations(free_count=specialization.has_free_quantity, price=specialization.price)
+        bank_account_registration_service_price = self.calculate_bank_account_registration_service()
 
-        private_shareholders_price_total = 0
-        if private_shareholders_count > free_private_shareholders_count:
-            private_shareholders_price_total = (private_shareholders_count - free_private_shareholders_count) * private_shareholder_price
-        private_shareholders_cost_price_total = private_shareholders_price_total
+        # private_shareholder TODO duplicate code
+        private_shareholder = Price.objects.get(name='private_shareholder', place_type=place_type)
+        private_shareholders_price = 0
+        private_shareholder_cost_price = 0
+        if self.data.private_shareholders_count > private_shareholder.has_free_quantity:
+            private_shareholders_price = (self.data.private_shareholders_count - private_shareholder.has_free_quantity) * private_shareholder.price
+            private_shareholder_cost_price = (self.data.private_shareholders_count - private_shareholder.has_free_quantity) * private_shareholder.cost_price
 
+        # legal_shareholder
+        legal_shareholder = Price.objects.get(name='legal_shareholder', place_type=place_type)
+        legal_shareholders_price = 0
+        legal_shareholders_cost_price = 0
+        if self.data.legal_shareholders_count > legal_shareholder.has_free_quantity:
+            legal_shareholders_price = (self.data.legal_shareholders_count - legal_shareholder.has_free_quantity) * legal_shareholder.price
+            legal_shareholders_cost_price = (self.data.legal_shareholders_count - legal_shareholder.has_free_quantity) * legal_shareholder.cost_price
 
-        # shareholder legal
-        legal_shareholders_count = self.data.legal_shareholders_count
-        free_legal_shareholders_count = 3
-        legal_shareholder_price = 275
+        company_registration = Price.objects.get(name='company_registration', place_type=place_type)
+        professional_service = Price.objects.get(name='professional_service', place_type=place_type)
 
-        legal_shareholders_price_total = 0
-        if legal_shareholders_count > free_legal_shareholders_count:
-            legal_shareholders_price_total = (legal_shareholders_count - free_legal_shareholders_count) * legal_shareholder_price
-        legal_shareholders_cost_price_total = legal_shareholders_price_total
-
-        company_registration = 3000 * 1.05
-        registration_service = 6500
-
-        cost_price_total = sum([
-            activities_cost_price_total,
-            private_shareholders_cost_price_total,
-            legal_shareholders_cost_price_total,
-            company_registration,
-        ])
-        price_total = sum([
-            activities_price_total,
-            bank_account_registration_service,
-            private_shareholders_price_total,
-            legal_shareholders_price_total,
-            company_registration,
-            registration_service,
-        ])
         payments = get_payments(
-            activities_price_total=activities_price_total,
-            bank_account_registration_service=bank_account_registration_service,
-            private_shareholders_price_total=private_shareholders_price_total,
-            legal_shareholders_price_total=legal_shareholders_price_total,
-            company_registration=company_registration,
-            registration_service=registration_service,
+            specialization_price=specialization_price,
+            bank_account_registration_service_price=bank_account_registration_service_price,
+            private_shareholders_price=private_shareholders_price,
+            legal_shareholders_price=legal_shareholders_price,
+            company_registration_price=company_registration.price * ((company_registration.extra_fee / 100)+1),
+            professional_service=professional_service,
         )
 
         unavailable = [
@@ -377,12 +379,10 @@ class PriceData:
 
         payments_data = Payments(
             payments=payments,
-            cost_price_total=cost_price_total,
         )
 
-
         return Solution(
-            place_name='Оффшорная компания',
+            place_type=place_type,
             payments=payments_data,
             unavailable=unavailable,
         )
@@ -574,7 +574,7 @@ class PriceData:
 
             custom_payments.append(PriceDataView(
                 name=package_1.name,
-                value=package_1.values_list,
+                values=package_1.values_list,
                 is_start_value=package_1.is_start_value,
             ))
 
