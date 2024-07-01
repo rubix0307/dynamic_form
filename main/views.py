@@ -85,25 +85,32 @@ def get_payments(
             value=legal_shareholders_price,
             is_start_value=legal_shareholders_start_price,
         ))
+    if any([office, office_search_service]):
+        office_payments = []
+
+        if office:
+            office_payments.append(PriceDataView(
+                name='Аренда офиса',
+                value=office.price,
+                is_start_value=office.is_start_value,
+            ))
+        if office_search_service:
+            office_payments.append(PriceDataView(
+                name='Услуга по подбору офиса',
+                value=office_search_service.price,
+                is_start_value=office_search_service.is_start_value,
+            ))
+
+        payments.append(PriceDataView(
+            name='Офис',
+            values=office_payments,
+        ))
     if bank_account_registration_service_price:
         payments.append(PriceDataView(
             name='Регистрация корпоративного счёта',
             value=bank_account_registration_service_price,
             is_start_value=bank_account_registration_service_start_price,
         ))
-    if office:
-        payments.append(PriceDataView(
-            name='Аренда офиса',
-            value=office.price,
-            is_start_value=office.is_start_value,
-        ))
-    if office_search_service:
-        payments.append(PriceDataView(
-            name='Услуга по подбору офиса',
-            value=office_search_service.price,
-            is_start_value=office_search_service.is_start_value,
-        ))
-
     if company_registration_price:
         payments.append(PriceDataView(
             name='Регистрация компании',
