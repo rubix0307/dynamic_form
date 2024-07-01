@@ -261,7 +261,7 @@ class Payments:
     def __init__(self, payments: list[PriceDataView], cost_price_total=None):
         self.payments = payments
         self.is_start_value = any([p.is_start_value for p in payments])
-        self.price_total = sum(float(p.value) if p.value else float(p.total_price) for p in payments)
+        self.price_total = sum(float(p.value) for p in payments)
         self.cost_price_total = cost_price_total
 
 @dataclass
@@ -285,18 +285,18 @@ class PriceData:
         solutions = []
         other_payments = self.other_payments()
 
-        if self.data.uae_business_area:
-            if self.data.uae_business_full_area:
-                solutions.append(self.mainland())
-            else:
-                solutions.append(self.mainland())
-                solutions.append(self.ifza())
-                solutions.append(self.uaq())
-        else:
-            solutions.append(self.offshore())
-            solutions.append(self.mainland())
-            solutions.append(self.ifza())
-            solutions.append(self.uaq())
+        # if self.data.uae_business_area:
+        #     if self.data.uae_business_full_area:
+        #         solutions.append(self.mainland())
+        #     else:
+        #         solutions.append(self.mainland())
+        #         solutions.append(self.ifza())
+        #         solutions.append(self.uaq())
+        # else:
+        solutions.append(self.offshore())
+        # solutions.append(self.mainland())
+        solutions.append(self.ifza())
+        solutions.append(self.uaq())
 
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
@@ -369,7 +369,7 @@ class PriceData:
             bank_account_registration_service_price=bank_account_registration_service_price,
             private_shareholders_price=private_shareholders_price,
             legal_shareholders_price=legal_shareholders_price,
-            company_registration_price=company_registration.price * ((company_registration.extra_fee / 100)+1),
+            company_registration_price=company_registration.price * (1 + (company_registration.extra_fee or 0)/100),
             professional_service=professional_service,
         )
 
@@ -587,11 +587,11 @@ class PriceData:
             ))
 
             if self.data.visa_quotas_now:
-                visa_charge = Price.objects.get_package_with_children(pk=13)
+                visa_charge = Price.objects.get_package_with_children(name='Visa charges', place_type=place_type)
                 visa_now_professional_services = Price.objects.get(name='visa_now_professional_services', place_type=place_type)
-                visa_now_fee_percentage = Price.objects.get(name='visa_now_fee_percentage', place_type=place_type)
-                visa_now_price = (visa_charge.get_total_price() * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.quantity/100)
-                visa_now_services_price = (visa_now_professional_services.price * self.data.visa_quotas_now) * (1 + visa_now_fee_percentage.quantity/100)
+
+                visa_now_price = (visa_charge.get_total_price() * self.data.visa_quotas_now) * (1 + (visa_charge.extra_fee or 0)/100)
+                visa_now_services_price = (visa_now_professional_services.price * self.data.visa_quotas_now) * (1 + (visa_charge.extra_fee or 0)/100)
 
 
         private_shareholders_price = 0 # TODO

@@ -24,8 +24,8 @@ class Specialization(models.Model):
 
 
 class PriceDataManager(models.Manager):
-    def get_package_with_children(self, pk):
-        package = self.get(pk=pk)
+    def get_package_with_children(self, **kwargs):
+        package = self.get(**kwargs)
         package.values_list = self._get_children(package)
         package.total_value = package.get_total_price()
         return package
