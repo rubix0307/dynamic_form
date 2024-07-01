@@ -286,18 +286,18 @@ class PriceData:
         solutions = []
         other_payments = self.other_payments()
 
-        # if self.data.uae_business_area:
-        #     if self.data.uae_business_full_area:
-        #         solutions.append(self.mainland())
-        #     else:
-        #         solutions.append(self.mainland())
-        #         solutions.append(self.ifza())
-        #         solutions.append(self.uaq())
-        # else:
-        solutions.append(self.offshore())
-        solutions.append(self.mainland())
-        solutions.append(self.ifza())
-        solutions.append(self.uaq())
+        if self.data.uae_business_area:
+            if self.data.uae_business_full_area:
+                solutions.append(self.mainland())
+            else:
+                solutions.append(self.mainland())
+                solutions.append(self.ifza())
+                solutions.append(self.uaq())
+        else:
+            solutions.append(self.offshore())
+            solutions.append(self.mainland())
+            solutions.append(self.ifza())
+            solutions.append(self.uaq())
 
         for solution in solutions:
             solution.payments.payments += other_payments.payments.payments
