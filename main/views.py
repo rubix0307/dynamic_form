@@ -264,11 +264,6 @@ class Payments:
         self.price_total = sum(float(p.value) for p in payments)
         self.cost_price_total = cost_price_total
 
-@dataclass
-class UnavailableOption:
-    name: str
-
-
 class Solution:
     def __init__(self, place_type: str, payments: list[Price]) -> None:
         self.place_type: PlaceType = place_type
